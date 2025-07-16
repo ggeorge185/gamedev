@@ -14,20 +14,24 @@ var current_moves = 0
 var card_scene = preload("res://Scenes/MiniGames/Card.tscn")
 var seconds_left: int = 0
 var game_over_screen = preload("res://Scenes/GameOver.tscn")
+var input_locked = false
 
 func _ready():
 	setup_game()
+	print("Task data for the game ", task_data)
+	print()
 	start_timer(task_data.get("time_limit", 5))
 	print("Timer Label: ", timer_label.text)
 
 func setup_game():
-	var pairs = task_data.get("pairs", [])
+	#var pairs = task_data.get("pairs", []);
 	#change to the db
-	#var pairs = GameData.memory_pairs
+	var pairs = GameData.memory_pairs
+	#print(pairs)
 	var all_words = []
 	for pair in pairs:
-		all_words.append({ "word": pair.de, "pair_id": pair.de })
-		all_words.append({ "word": pair.en, "pair_id": pair.de })
+		all_words.append({ "word": pair.word_de, "pair_id": pair.word_de })
+		all_words.append({ "word": pair.word_en, "pair_id": pair.word_de })
 
 	all_words.shuffle()
 	for entry in all_words:
@@ -38,8 +42,12 @@ func setup_game():
 		grid.add_child(card)
 
 func _on_card_flipped(card):
+	print("input lock", input_locked)
+	if input_locked:
+		return
 	selected_cards.append(card)
 	if selected_cards.size() == 2:
+		input_locked = true
 		check_match()
 
 func check_match():
@@ -54,7 +62,8 @@ func check_match():
 		card2.mark_as_matched()
 		matched_pairs += 1
 		selected_cards.clear()
-		if matched_pairs == task_data.get("pairs", []).size():
+		input_locked = false
+		if matched_pairs == GameData.memory_pairs.size():
 			show_game_over(true)
 			task_completed.emit(true)
 			return
@@ -63,6 +72,7 @@ func check_match():
 		card1.conceal()
 		card2.conceal()
 		selected_cards.clear()
+		input_locked = false
 
 	if current_moves >= move_limit:
 		show_game_over(false)

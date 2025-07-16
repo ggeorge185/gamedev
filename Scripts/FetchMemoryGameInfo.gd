@@ -35,7 +35,8 @@ func _on_game_info_complete(result, response_code, headers, body):
 	#print("Result: ", result, "HTTP CODE: ", response_code)
 	if response_code == 200:
 		GameData.game_info = JSON.parse_string(body.get_string_from_utf8())
-		#print(data)
+		print("The type of the game data is ", typeof(GameData.game_info))
+		# print(GameData.game_info[0])
 		#return data
 		#fetch_memory_pairs()
 	else:
@@ -45,7 +46,7 @@ func _on_memory_pairs_complete(result, response_code, headers, body):
 	print("Result: ", result, "HTTP CODE: ", response_code)
 	if response_code == 200:
 		GameData.memory_pairs = JSON.parse_string(body.get_string_from_utf8())
-		print(GameData.memory_pairs)
+		# print(GameData.memory_pairs[0])
 		get_tree().change_scene_to_file("res://Scenes/GameController.tscn")
 	else:
 		print("Failed to fetch memory pairs: ", result, response_code)
