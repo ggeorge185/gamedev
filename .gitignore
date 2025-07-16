@@ -1,9 +1,7 @@
-#ignore everything for now to upload the folder structure
-*
-
 # Godot 4+ specific ignores
 
 .godot/
 /android/
 /addons/
 .env
+structure
