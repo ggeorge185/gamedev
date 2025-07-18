@@ -57,3 +57,33 @@ def update_info(row_id):
         conn.execute(upd)
         conn.commit()
     return jsonify({"status": "updated"})
+
+@memory_game.route('/api/memory_game/pairs', methods=['POST'])
+def create_pair():
+    data = request.json
+    with db.engine.connect() as conn:
+        ins = memory_pairs_table.insert().values(**data)
+        conn.execute(ins)
+        conn.commit()
+    return jsonify({'status': 'success'})
+
+@memory_game.route('/api/memory_game/pairs/<int:pair_id>', methods=['PUT'])
+def update_pair(pair_id):
+    data = request.json
+    with db.engine.connect() as conn:
+        upd = memory_pairs_table.update().where(
+            memory_pairs_table.c.id == pair_id
+        ).values(**data)
+        conn.execute(upd)
+        conn.commit()
+    return jsonify({'status': 'updated'})
+
+@memory_game.route('/api/memory_game/pairs/<int:pair_id>', methods=['DELETE'])
+def delete_pair(pair_id):
+    with db.engine.connect() as conn:
+        delt = memory_pairs_table.delete().where(
+            memory_pairs_table.c.id == pair_id
+        )
+        conn.execute(delt)
+        conn.commit()
+    return jsonify({'status': 'deleted'})

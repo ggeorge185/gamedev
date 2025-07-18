@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './components/Dashboard'
 import GameInfo from './components/GameInfo'
 import AddGame from './components/AddGame'
+import MemoryPairs from './components/MemoryPairs'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import './App.css'
@@ -62,6 +63,7 @@ function App() {
           <Route index element={<Navigate to="/game-info" replace />} />
           <Route path="game-info" element={<GameInfo />} />
           <Route path="add-game" element={<AddGame />} />
+          <Route path="memory-pairs" element={<MemoryPairs />} />
         </Route>
       </Routes>
     </BrowserRouter>

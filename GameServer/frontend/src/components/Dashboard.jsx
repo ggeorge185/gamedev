@@ -9,6 +9,7 @@ function Dashboard() {
         <ul>
           <li><Link to="/game-info">Game Information</Link></li>
           <li><Link to="/add-game">Add New Game</Link></li>
+          <li><Link to="/memory-pairs">Memory Pairs</Link></li>
         </ul>
       </nav>
       <main className="content">
