@@ -6,8 +6,20 @@ import '../styles/VocabularySets.css'
 function VocabularySets() {
   const [sets, setSets] = useState([])
   const [editingId, setEditingId] = useState(null)
-  const [newSet, setNewSet] = useState({ name: '', description: '' })
+  const [newSet, setNewSet] = useState({ 
+    name: '', 
+    description: '', 
+    difficulty: '1'  // Add difficulty to initial state
+  })
   const [error, setError] = useState('')
+
+  const difficultyLevels = [
+    { value: '1', label: 'Beginner' },
+    { value: '2', label: 'Elementary' },
+    { value: '3', label: 'Intermediate' },
+    { value: '4', label: 'Advanced' },
+    { value: '5', label: 'Expert' }
+  ]
 
   useEffect(() => {
     fetchSets()
@@ -54,6 +66,17 @@ function VocabularySets() {
             value={newSet.description}
             onChange={e => setNewSet({...newSet, description: e.target.value})}
           />
+          <select
+            value={newSet.difficulty}
+            onChange={e => setNewSet({...newSet, difficulty: e.target.value})}
+            required
+          >
+            {difficultyLevels.map(level => (
+              <option key={level.value} value={level.value}>
+                {level.label}
+              </option>
+            ))}
+          </select>
           <button type="submit">Create Set</button>
         </div>
       </form>
@@ -64,6 +87,9 @@ function VocabularySets() {
             <h3>{set.name}</h3>
             <p>{set.description}</p>
             <p>{set.word_count} words</p>
+            <span className={`difficulty difficulty-${set.difficulty}`}>
+              {difficultyLevels.find(l => l.value === set.difficulty)?.label}
+            </span>
             <div className="actions">
               <Link to={`/vocabulary/${set.id}`}>View Words</Link>
             </div>

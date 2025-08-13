@@ -8,23 +8,17 @@ function Vocabulary() {
   const [vocabulary, setVocabulary] = useState([])
   const [currentSet, setCurrentSet] = useState(null)
   const [error, setError] = useState('')
+  const [editingId, setEditingId] = useState(null)
   const [newWord, setNewWord] = useState({
     word_de: '',
     word_en: '',
     phonetic_de: '',
     word_type: '',
-    difficulty: '1',
     set_id: setId
   })
+  const [csvError, setCsvError] = useState('')
 
   const wordTypes = ['noun', 'verb', 'adjective', 'adverb', 'preposition', 'other']
-  const difficultyLevels = [
-    { value: '1', label: 'Beginner' },
-    { value: '2', label: 'Elementary' },
-    { value: '3', label: 'Intermediate' },
-    { value: '4', label: 'Advanced' },
-    { value: '5', label: 'Expert' }
-  ]
 
   useEffect(() => {
     fetchSetDetails()
@@ -53,7 +47,6 @@ function Vocabulary() {
           word_en: '',
           phonetic_de: '',
           word_type: '',
-          difficulty: '1',
           set_id: setId
         })
       })
@@ -75,6 +68,57 @@ function Vocabulary() {
         .then(() => fetchVocabulary())
         .catch(err => setError(err.message))
     }
+  }
+
+  // Add this function to handle CSV upload
+  function handleCSVUpload(e) {
+    const file = e.target.files[0]
+    const reader = new FileReader()
+    
+    reader.onload = async (event) => {
+      try {
+        const csv = event.target.result
+        const lines = csv.split('\n')
+        const headers = lines[0].split(',')
+        
+        // Update required headers (remove difficulty)
+        const requiredHeaders = ['word_de', 'word_en', 'phonetic_de', 'word_type']
+        if (!requiredHeaders.every(h => headers.includes(h))) {
+          setCsvError('Invalid CSV format. Required columns: ' + requiredHeaders.join(', '))
+          return
+        }
+
+        // Parse rows without difficulty
+        const words = lines.slice(1)
+          .filter(line => line.trim())
+          .map(line => {
+            const values = line.split(',')
+            return {
+              word_de: values[0],
+              word_en: values[1],
+              phonetic_de: values[2],
+              word_type: values[3],
+              set_id: setId
+            }
+          })
+
+        // Upload words in batches
+        for (const word of words) {
+          await axios.post('/api/vocabulary', word)
+        }
+
+        fetchVocabulary()
+        setCsvError('')
+      } catch (err) {
+        setCsvError('Error importing CSV: ' + err.message)
+      }
+    }
+
+    reader.onerror = () => {
+      setCsvError('Error reading file')
+    }
+
+    reader.readAsText(file)
   }
 
   return (
@@ -127,26 +171,33 @@ function Vocabulary() {
               ))}
             </select>
           </div>
-          
-          <div className="form-group">
-            <label>Difficulty</label>
-            <select
-              value={newWord.difficulty}
-              onChange={e => setNewWord({...newWord, difficulty: e.target.value})}
-              required
-            >
-              {difficultyLevels.map(level => (
-                <option key={level.value} value={level.value}>
-                  {level.label}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
         <button type="submit">Add Word</button>
       </form>
 
       {error && <div className="error-message">{error}</div>}
+
+      {/* CSV Import Section */}
+      <div className="csv-import">
+        <h3>Import from CSV</h3>
+        <div className="form-group">
+          <label>Upload CSV File</label>
+          <input 
+            type="file" 
+            accept=".csv"
+            onChange={handleCSVUpload}
+          />
+          {csvError && <div className="error-message">{csvError}</div>}
+        </div>
+        <div className="csv-format">
+          <p>Expected CSV format:</p>
+          <pre>
+            word_de,word_en,phonetic_de,word_type,difficulty
+            Haus,house,haʊs,noun,1
+            gehen,to go,ˈgeːən,verb,2
+          </pre>
+        </div>
+      </div>
 
       {/* Vocabulary list */}
       <div className="vocabulary-list">
@@ -159,8 +210,7 @@ function Vocabulary() {
                   word_de: e.target.word_de.value,
                   word_en: e.target.word_en.value,
                   phonetic_de: e.target.phonetic_de.value,
-                  word_type: e.target.word_type.value,
-                  difficulty: e.target.difficulty.value
+                  word_type: e.target.word_type.value
                 })
               }}>
                 <div className="form-grid">
@@ -170,13 +220,6 @@ function Vocabulary() {
                   <select name="word_type" defaultValue={word.word_type} required>
                     {wordTypes.map(type => (
                       <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                  <select name="difficulty" defaultValue={word.difficulty} required>
-                    {difficultyLevels.map(level => (
-                      <option key={level.value} value={level.value}>
-                        {level.label}
-                      </option>
                     ))}
                   </select>
                 </div>
@@ -190,12 +233,7 @@ function Vocabulary() {
             ) : (
               <>
                 <div className="word-content">
-                  <div className="word-header">
-                    <h3>{word.word_de}</h3>
-                    <span className={`difficulty difficulty-${word.difficulty}`}>
-                      {difficultyLevels.find(l => l.value === word.difficulty)?.label}
-                    </span>
-                  </div>
+                  <h3>{word.word_de}</h3>
                   <p><strong>English:</strong> {word.word_en}</p>
                   <p><strong>Phonetic:</strong> {word.phonetic_de}</p>
                   <p><strong>Type:</strong> {word.word_type}</p>

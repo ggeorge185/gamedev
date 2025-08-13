@@ -23,7 +23,8 @@ def get_sets():
     print("GET /api/vocabulary-sets called")
     try:
         with db.engine.connect() as conn:
-            query = """
+            # Create the query using SQLAlchemy
+            query = db.text("""
                 SELECT 
                     vs.id,
                     vs.name,
@@ -34,7 +35,8 @@ def get_sets():
                 LEFT JOIN vocabulary v ON vs.id = v.set_id 
                 GROUP BY vs.id, vs.name, vs.description, vs.created_at
                 ORDER BY vs.created_at DESC
-            """
+            """)
+            
             result = conn.execute(query)
             rows = [dict(row._mapping) for row in result]
             print(f"Successfully fetched {len(rows)} vocabulary sets")
@@ -107,4 +109,4 @@ def delete_word(word_id):
         )
         conn.execute(delt)
         conn.commit()
-    return jsonify({"status": "deleted"}) 
+    return jsonify({"status": "deleted"})
