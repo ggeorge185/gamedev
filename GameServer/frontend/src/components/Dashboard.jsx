@@ -11,6 +11,8 @@ function Dashboard() {
           <li><Link to="/add-game">Add New Game</Link></li>
           <li><Link to="/memory-pairs">Memory Pairs</Link></li>
           <li><Link to="/vocabulary-sets">Vocabulary Sets</Link></li>
+          <li className="nav-divider"></li>
+          <li><Link to="/admin/dashboard">🔧 Admin Panel</Link></li>
         </ul>
       </nav>
       <main className="content">

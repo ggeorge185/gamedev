@@ -1,0 +1,76 @@
+.admin-dashboard {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.admin-sidebar {
+  background: #2c3e50;
+  color: white;
+  padding: 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header {
+  padding: 2rem 1.5rem 1rem;
+  border-bottom: 1px solid #34495e;
+}
+
+.admin-header h2 {
+  margin: 0 0 0.5rem;
+  color: white;
+}
+
+.admin-header p {
+  margin: 0;
+  color: #bdc3c7;
+  font-size: 0.875rem;
+}
+
+.admin-nav {
+  list-style: none;
+  padding: 1rem 0;
+  margin: 0;
+}
+
+.admin-nav li {
+  margin: 0;
+}
+
+.admin-nav a,
+.logout-button {
+  display: block;
+  padding: 1rem 1.5rem;
+  color: #ecf0f1;
+  text-decoration: none;
+  transition: background 0.3s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.admin-nav a:hover,
+.logout-button:hover {
+  background: #34495e;
+  color: white;
+}
+
+.nav-divider {
+  height: 1px;
+  background: #34495e;
+  margin: 0.5rem 0;
+}
+
+.logout-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-content {
+  padding: 2rem;
+  overflow-y: auto;
+}

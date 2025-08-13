@@ -1,0 +1,261 @@
+.game-integration {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.game-integration h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.game-integration > p {
+  color: #7f8c8d;
+  margin-bottom: 2rem;
+}
+
+.integration-section {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.integration-section h3 {
+  color: #2c3e50;
+  margin: 0 0 1rem;
+}
+
+.sets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.set-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e1e8ed;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.set-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.set-card h4 {
+  margin: 0 0 0.5rem;
+  color: #2c3e50;
+}
+
+.set-card p {
+  color: #7f8c8d;
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+}
+
+.set-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.difficulty,
+.word-count {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.difficulty {
+  background: #3498db;
+  color: white;
+}
+
+.word-count {
+  background: #95a5a6;
+  color: white;
+}
+
+.test-api-button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 100%;
+}
+
+.test-api-button:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.test-api-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.api-result {
+  background: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.api-result h4 {
+  margin: 0 0 0.5rem;
+}
+
+.response-info p {
+  margin: 0.25rem 0;
+}
+
+.words-preview {
+  margin: 1rem 0;
+}
+
+.words-table {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.words-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.words-table th,
+.words-table td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.words-table th {
+  background: #e9ecef;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.more-words {
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+  margin: 0.5rem 0 0;
+}
+
+.godot-code {
+  margin: 1rem 0;
+}
+
+.code-controls {
+  margin-bottom: 1rem;
+}
+
+.copy-button {
+  background: #9b59b6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.copy-button:hover {
+  background: #8e44ad;
+}
+
+.code-block {
+  background: #2c3e50;
+  color: #ecf0f1;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.api-docs {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.endpoint {
+  margin-bottom: 1.5rem;
+}
+
+.endpoint h4 {
+  color: #2c3e50;
+  margin: 0 0 0.5rem;
+  font-family: monospace;
+  background: #e9ecef;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.endpoint-example {
+  margin-top: 0.5rem;
+}
+
+.endpoint-example code {
+  background: #34495e;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.response-format {
+  background: #2c3e50;
+  color: #ecf0f1;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tip-card {
+  background: #e8f5e8;
+  border-left: 4px solid #27ae60;
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.tip-card h4 {
+  margin: 0 0 0.5rem;
+  color: #27ae60;
+}
+
+.tip-card p {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 0.875rem;
+}

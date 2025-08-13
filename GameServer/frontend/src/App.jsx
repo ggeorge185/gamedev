@@ -5,70 +5,87 @@ import AddGame from './components/AddGame'
 import MemoryPairs from './components/MemoryPairs'
 import VocabularySets from './components/VocabularySets'
 import Vocabulary from './components/Vocabulary'
+import AdminLogin from './components/AdminLogin'
+import AdminDashboard from './components/AdminDashboard'
+import DatabaseManager from './components/DatabaseManager'
+import GameIntegration from './components/GameIntegration'
+import SystemStatus from './components/SystemStatus'
+import AdminUsers from './components/AdminUsers'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import './App.css'
+import api from './utils/api'
 
 function App() {
-  const [gameInfo, setGameInfo] = useState([])
-  const [memoryPairs, setMemoryPairs] = useState([])
-  const [form, setForm] = useState({ title: '', type: '', time_limit: '', pairs: '[]' })
-  const [addResult, setAddResult] = useState('')
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false)
+  const [adminUser, setAdminUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchGameInfo()
-    fetchMemoryPairs()
+    checkAdminSession()
   }, [])
 
-  function fetchGameInfo() {
-    axios.get('/api/memory_game/info')
-      .then(res => setGameInfo(res.data))
-      .catch(err => setGameInfo([{ error: err.message }]))
+  async function checkAdminSession() {
+  try {
+    const response = await api.get('/admin/check-session')  // Now uses absolute URL
+    setIsAdminLoggedIn(response.data.logged_in)
+    setAdminUser(response.data.user)
+  } catch (error) {
+    console.error('Session check failed:', error)
+    setIsAdminLoggedIn(false)
+  } finally {
+    setLoading(false)
   }
+}
 
-  function fetchMemoryPairs() {
-    axios.get('/api/memory_game/pairs')
-      .then(res => setMemoryPairs(res.data))
-      .catch(err => setMemoryPairs([{ error: err.message }]))
-  }
-
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault()
-    let pairs
+  async function checkAdminSession() {
     try {
-      pairs = JSON.parse(form.pairs || '[]')
-    } catch {
-      setAddResult('Invalid JSON for pairs!')
-      return
+      const response = await axios.get('/admin/check-session')
+      setIsAdminLoggedIn(response.data.logged_in)
+      setAdminUser(response.data.user)
+    } catch (error) {
+      console.error('Session check failed:', error)
+    } finally {
+      setLoading(false)
     }
-    axios.post('/api/memory_game/info', {
-      title: form.title,
-      type: form.type,
-      time_limit: parseInt(form.time_limit),
-      pairs
-    })
-      .then(res => {
-        setAddResult(JSON.stringify(res.data, null, 2))
-        fetchGameInfo()
-      })
-      .catch(err => setAddResult(err.message))
+  }
+
+  if (loading) {
+    return <div className="loading">Loading...</div>
   }
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />}>
-          <Route index element={<Navigate to="/game-info" replace />} />
-          <Route path="game-info" element={<GameInfo />} />
-          <Route path="add-game" element={<AddGame />} />
-          <Route path="memory-pairs" element={<MemoryPairs />} />
-          <Route path="vocabulary-sets" element={<VocabularySets />} />
-          <Route path="vocabulary/:setId" element={<Vocabulary />} />
-        </Route>
+        <Route path="/admin/login" element={
+          <AdminLogin 
+            onLogin={checkAdminSession}
+            isLoggedIn={isAdminLoggedIn}
+          />
+        } />
+        
+        {!isAdminLoggedIn ? (
+          <>
+            <Route path="/admin" element={<AdminDashboard user={adminUser} />}>
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<SystemStatus />} />
+              <Route path="database" element={<DatabaseManager />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="game-integration" element={<GameIntegration />} />
+            </Route>
+            
+            <Route path="/" element={<Dashboard />}>
+              <Route index element={<Navigate to="/game-info" replace />} />
+              <Route path="game-info" element={<GameInfo />} />
+              <Route path="add-game" element={<AddGame />} />
+              <Route path="memory-pairs" element={<MemoryPairs />} />
+              <Route path="vocabulary-sets" element={<VocabularySets />} />
+              <Route path="vocabulary/:setId" element={<Vocabulary />} />
+            </Route>
+          </>
+        ) : (
+          <Route path="*" element={<Navigate to="/admin/login" replace />} />
+        )}
       </Routes>
     </BrowserRouter>
   )
