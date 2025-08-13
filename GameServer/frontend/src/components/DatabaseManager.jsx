@@ -3,6 +3,7 @@ import axios from 'axios'
 import '../styles/DatabaseManager.css'
 
 function DatabaseManager() {
+  /* COMMENTED OUT - Table Setup Section
   const [setupResult, setSetupResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,12 +22,14 @@ function DatabaseManager() {
       setLoading(false)
     }
   }
+  */
 
   return (
     <div className="database-manager">
       <h2>Database Management</h2>
       <p>Manage your Alex Neuanfang database tables and sample data.</p>
 
+      {/* COMMENTED OUT - Table Setup Section
       <div className="manager-section">
         <h3>🏗️ Table Setup</h3>
         <p>Create all necessary database tables with sample data for testing.</p>
@@ -77,12 +80,13 @@ function DatabaseManager() {
           </div>
         )}
       </div>
+      */}
 
       <div className="manager-section">
-        <h3>📋 What This Does</h3>
+        <h3>📋 Database Information</h3>
         <div className="info-grid">
           <div className="info-card">
-            <h4>🏛️ Core Tables</h4>
+            <h4> Core Tables</h4>
             <ul>
               <li>categories</li>
               <li>words</li>
@@ -92,7 +96,7 @@ function DatabaseManager() {
           </div>
 
           <div className="info-card">
-            <h4>🎮 Game Tables</h4>
+            <h4> Game Tables</h4>
             <ul>
               <li>memory_pairs</li>
               <li>game_info</li>
@@ -102,7 +106,7 @@ function DatabaseManager() {
           </div>
 
           <div className="info-card">
-            <h4>📊 Sample Data</h4>
+            <h4> Current Data</h4>
             <ul>
               <li>4 categories (banking, university, health, bureaucracy)</li>
               <li>12+ vocabulary words with phonetics</li>
@@ -112,17 +116,18 @@ function DatabaseManager() {
           </div>
 
           <div className="info-card">
-            <h4>🎯 Ready For</h4>
+            <h4> Features Available</h4>
             <ul>
-              <li>React frontend testing</li>
-              <li>Godot game integration</li>
+              <li>React frontend interface</li>
               <li>Vocabulary management</li>
-              <li>Memory game development</li>
+              <li>Memory game support</li>
+              <li>Admin panel access</li>
             </ul>
           </div>
         </div>
       </div>
 
+      {/* COMMENTED OUT - Important Notes Section
       <div className="manager-section">
         <h3>⚠️ Important Notes</h3>
         <div className="warning-box">
@@ -131,6 +136,7 @@ function DatabaseManager() {
           <p><strong>Production:</strong> In production, use proper database migrations instead.</p>
         </div>
       </div>
+      */}
     </div>
   )
 }

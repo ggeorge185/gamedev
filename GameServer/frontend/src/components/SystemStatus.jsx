@@ -3,7 +3,9 @@ import axios from 'axios'
 import '../styles/SystemStatus.css'
 
 function SystemStatus() {
+  /* COMMENTED OUT - System Health Section
   const [systemHealth, setSystemHealth] = useState(null)
+  */
   const [databaseStatus, setDatabaseStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -15,12 +17,17 @@ function SystemStatus() {
   async function fetchSystemStatus() {
     setLoading(true)
     try {
+      /* COMMENTED OUT - Health check
       const [healthResponse, dbResponse] = await Promise.all([
         axios.get('/health'),
         axios.get('/api/database/status')
       ])
       
       setSystemHealth(healthResponse.data)
+      */
+      
+      // Only fetch database status
+      const dbResponse = await axios.get('/api/database/status')
       setDatabaseStatus(dbResponse.data)
     } catch (error) {
       console.error('Failed to fetch system status:', error)
@@ -49,7 +56,7 @@ function SystemStatus() {
       </div>
 
       <div className="status-grid">
-        {/* System Health Card */}
+        {/* COMMENTED OUT - System Health Card
         <div className="status-card">
           <h3>🏥 System Health</h3>
           {systemHealth ? (
@@ -69,10 +76,11 @@ function SystemStatus() {
             <p>❌ Health check failed</p>
           )}
         </div>
+        */}
 
         {/* Database Status Card */}
         <div className="status-card">
-          <h3>🗄️ Database Status</h3>
+          <h3>Database Status</h3>
           {databaseStatus ? (
             <div className="db-info">
               <div className="status-badge healthy">
@@ -108,25 +116,10 @@ function SystemStatus() {
           )}
         </div>
 
-        {/* Quick Actions Card */}
-        <div className="status-card">
-          <h3>⚡ Quick Actions</h3>
-          <div className="action-buttons">
-            <button onClick={() => window.open('/', '_blank')} className="action-button">
-              🌐 Open API Root
-            </button>
-            <button onClick={() => window.open('/api/database/status', '_blank')} className="action-button">
-              📊 View Raw DB Status
-            </button>
-            <button onClick={() => window.open('/health', '_blank')} className="action-button">
-              🏥 Health Check
-            </button>
-          </div>
-        </div>
 
         {/* Server Info Card */}
         <div className="status-card">
-          <h3>🖥️ Server Information</h3>
+          <h3>Server Information</h3>
           <div className="server-info">
             <p><strong>Status:</strong> <span className="status-badge healthy">🟢 Online</span></p>
             <p><strong>API Version:</strong> 2.0</p>

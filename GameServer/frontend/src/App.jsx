@@ -71,7 +71,6 @@ function App() {
               <Route path="dashboard" element={<SystemStatus />} />
               <Route path="database" element={<DatabaseManager />} />
               <Route path="users" element={<AdminUsers />} />
-              <Route path="game-integration" element={<GameIntegration />} />
             </Route>
             
             <Route path="/" element={<Dashboard />}>
