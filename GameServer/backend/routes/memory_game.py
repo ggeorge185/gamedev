@@ -13,12 +13,10 @@ def get_info():
     Returns game information
     """
     try:
-        # Try to get data from game_info table, create if doesn't exist
         try:
             result = db.session.execute(text("SELECT * FROM game_info ORDER BY id"))
             rows = [dict(row._mapping) for row in result]
         except Exception:
-            # Table doesn't exist, create it and add sample data
             db.session.execute(text("""
                 CREATE TABLE IF NOT EXISTS game_info (
                     id SERIAL PRIMARY KEY,
@@ -30,7 +28,7 @@ def get_info():
                 )
             """))
             
-            # Insert sample data
+        
             db.session.execute(text("""
                 INSERT INTO game_info (title, type, time_limit, pairs) VALUES
                 ('German Memory Game', 'memory', 60, '[]'),

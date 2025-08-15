@@ -12,10 +12,6 @@ vocab_bp = Blueprint('vocabulary_sets', __name__)
 # 1. GET /api/vocabulary-sets - Frontend expects this
 @vocab_bp.route('/api/vocabulary-sets', methods=['GET'])
 def get_vocabulary_sets():
-    """
-    Frontend expects: GET /api/vocabulary-sets
-    Returns vocabulary sets with word_count
-    """
     try:
         vocab_sets = VocabularySet.query.filter_by(is_active=True).all()
         
@@ -44,9 +40,6 @@ def get_vocabulary_sets():
 # 2. POST /api/vocabulary-sets - Frontend expects this
 @vocab_bp.route('/api/vocabulary-sets', methods=['POST'])
 def create_vocabulary_set():
-    """
-    Frontend expects: POST /api/vocabulary-sets
-    """
     try:
         data = request.get_json()
         
@@ -87,9 +80,6 @@ def create_vocabulary_set():
 # 3. GET /api/vocabulary-sets/<id> - Frontend expects this
 @vocab_bp.route('/api/vocabulary-sets/<int:set_id>', methods=['GET'])
 def get_vocabulary_set(set_id):
-    """
-    Frontend expects: GET /api/vocabulary-sets/<id>
-    """
     try:
         vocab_set = VocabularySet.query.get_or_404(set_id)
         
@@ -129,9 +119,7 @@ def get_vocabulary_set(set_id):
 # 4. GET /api/vocabulary - Frontend expects this (from Vocabulary.jsx)
 @vocab_bp.route('/api/vocabulary', methods=['GET'])
 def get_vocabulary():
-    """
-    Frontend expects: GET /api/vocabulary?set_id=<id>
-    """
+
     try:
         set_id = request.args.get('set_id')
         
@@ -172,9 +160,6 @@ def get_vocabulary():
 # 5. POST /api/vocabulary - Frontend expects this
 @vocab_bp.route('/api/vocabulary', methods=['POST'])
 def create_vocabulary_word():
-    """
-    Frontend expects: POST /api/vocabulary
-    """
     try:
         data = request.get_json()
         
@@ -216,9 +201,6 @@ def create_vocabulary_word():
 # 6. PUT /api/vocabulary/<id> - Frontend expects this
 @vocab_bp.route('/api/vocabulary/<int:word_id>', methods=['PUT'])
 def update_vocabulary_word(word_id):
-    """
-    Frontend expects: PUT /api/vocabulary/<id>
-    """
     try:
         word = Word.query.get_or_404(word_id)
         data = request.get_json()
@@ -248,9 +230,6 @@ def update_vocabulary_word(word_id):
 # 7. DELETE /api/vocabulary/<id> - Frontend expects this
 @vocab_bp.route('/api/vocabulary/<int:word_id>', methods=['DELETE'])
 def delete_vocabulary_word(word_id):
-    """
-    Frontend expects: DELETE /api/vocabulary/<id>
-    """
     try:
         word = Word.query.get_or_404(word_id)
         
@@ -267,14 +246,10 @@ def delete_vocabulary_word(word_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
-# Admin routes (more advanced features)
 
 # 8. Admin: CREATE vocabulary set with words
 @vocab_bp.route('/api/admin/vocabulary-sets', methods=['POST'])
 def admin_create_vocabulary_set():
-    """
-    Admin creates a new vocabulary set with selected words
-    """
     try:
         data = request.get_json()
         
@@ -330,9 +305,6 @@ def admin_create_vocabulary_set():
 # 9. Game API - Get vocabulary set for games
 @vocab_bp.route('/api/games/vocabulary-sets/<int:set_id>/words', methods=['GET'])
 def get_vocabulary_set_for_game(set_id):
-    """
-    Godot game requests words from a specific vocabulary set
-    """
     try:
         vocab_set = VocabularySet.query.filter_by(id=set_id, is_active=True).first()
         if not vocab_set:

@@ -1,4 +1,4 @@
-from models import db  # Import from the shared models package
+from models import db  
 from datetime import datetime
 
 class VocabularySet(db.Model):
@@ -9,7 +9,6 @@ class VocabularySet(db.Model):
     description = db.Column(db.Text)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     difficulty_level = db.Column(db.String(50))
-    # Made created_by optional and removed foreign key constraint
     created_by = db.Column(db.Integer, nullable=True)  # No foreign key for now
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

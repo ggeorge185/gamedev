@@ -27,12 +27,12 @@ class DatabaseSetup:
             
             if not exists:
                 cursor.execute(f"CREATE DATABASE {self.database_name}")
-                print(f"✅ Database '{self.database_name}' created successfully!")
+                print(f"Database '{self.database_name}' created successfully!")
             else:
-                print(f"ℹ️  Database '{self.database_name}' already exists")
+                print(f"ℹDatabase '{self.database_name}' already exists")
                 
         except Exception as error:
-            print(f"❌ Error creating database: {error}")
+            print(f" Error creating database: {error}")
             return False
         finally:
             if connection:
@@ -140,13 +140,13 @@ class DatabaseSetup:
             for i, sql in enumerate(sql_statements, 1):
                 cursor.execute(sql)
                 table_name = sql.split("TABLE IF NOT EXISTS ")[1].split(" ")[0]
-                print(f"✅ {i:2d}. Table '{table_name}' created successfully!")
+                print(f" {i:2d}. Table '{table_name}' created successfully!")
             
             connection.commit()
-            print("🎉 All tables created successfully!")
+            print(" All tables created successfully!")
             
         except Exception as error:
-            print(f"❌ Error creating tables: {error}")
+            print(f" Error creating tables: {error}")
             connection.rollback()
             return False
         finally:
@@ -196,15 +196,15 @@ class DatabaseSetup:
             for sql in sample_data:
                 try:
                     cursor.execute(sql)
-                    print("✅ Sample data inserted!")
+                    print(" Sample data inserted!")
                 except Exception as insert_error:
-                    print(f"⚠️  Sample data insert warning: {insert_error}")
+                    print(f"  Sample data insert warning: {insert_error}")
             
             connection.commit()
-            print("🎉 All sample data inserted successfully!")
+            print(" All sample data inserted successfully!")
             
         except Exception as error:
-            print(f"❌ Error inserting sample data: {error}")
+            print(f" Error inserting sample data: {error}")
             return False
         finally:
             if connection:
@@ -214,17 +214,17 @@ class DatabaseSetup:
 
 def main():
     """Main setup function"""
-    print("🚀 Starting Alex Neuanfang Database Setup...")
+    print(" Starting Database Setup...")
     
     db_setup = DatabaseSetup()
     
     # Step 1: Create database
-    print("\n📖 Step 1: Creating database...")
+    print("\n Step 1: Creating database...")
     if not db_setup.create_database():
         sys.exit(1)
     
     # Step 2: Create tables
-    print("\n🏗️  Step 2: Creating tables...")
+    print("\n  Step 2: Creating tables...")
     if not db_setup.create_tables():
         sys.exit(1)
     
@@ -233,12 +233,8 @@ def main():
     if not db_setup.insert_sample_data():
         sys.exit(1)
     
-    print("\n🎉 Database setup completed successfully!")
-    print("📋 Your Alex Neuanfang database is ready!")
-    print("\n🚀 Next steps:")
-    print("   1. Start your Flask server: python app.py")
-    print("   2. Test at: http://localhost:5000")
-    print("   3. Use your React frontend to manage vocabulary!")
+    print("\nDatabase setup completed successfully!")
+    print("  Database is ready!")
 
 if __name__ == "__main__":
     main()

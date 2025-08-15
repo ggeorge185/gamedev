@@ -18,19 +18,16 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_DOMAIN'] = None 
 
-# ✅ Database configuration - Update with your credentials
+# Database configuration 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:sreeni7799@localhost:5432/alex_neuanfang'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize the database with the app
 db.init_app(app)
 
-# Import your blueprints AFTER initializing the database
 from routes.vocabulary_sets import vocab_bp
 from routes.memory_game import memory_bp
 from admin import admin_bp
 
-# Register blueprints
 app.register_blueprint(admin_bp)
 app.register_blueprint(vocab_bp)
 app.register_blueprint(memory_bp)
@@ -58,21 +55,16 @@ def home():
         ]
     })
 
-# ✅ Route to create tables on demand
 @app.route('/api/setup/tables', methods=['POST'])
 def setup_tables():
-    """Create the basic tables needed for vocabulary management"""
     try:
         with app.app_context():
-            # Import all your models here so they're registered
             from models.categories import Category
             from models.words import Word
             from models.vocabulary_sets import VocabularySet, VocabularySetWord
             
-            # Create all tables
             db.create_all()
             
-            # Add sample categories if they don't exist
             if Category.query.count() == 0:
                 categories = [
                     Category(category_name='banking', description='Banking and financial services vocabulary'),
@@ -83,7 +75,6 @@ def setup_tables():
                 for cat in categories:
                     db.session.add(cat)
                 
-                # Add sample words
                 banking_cat = categories[0]
                 university_cat = categories[1]
                 health_cat = categories[2]
@@ -111,7 +102,6 @@ def setup_tables():
                 for word in words:
                     db.session.add(word)
                 
-                # Create sample vocabulary sets
                 banking_set = VocabularySet(
                     set_name='Banking Basics',
                     description='Essential banking vocabulary for international students',
@@ -130,7 +120,6 @@ def setup_tables():
                 db.session.add(university_set)
                 db.session.commit()
                 
-                # Add words to sets
                 banking_words = Word.query.filter_by(category=banking_cat).all()
                 for word in banking_words:
                     if word.difficulty_level == 'beginner':
@@ -172,13 +161,10 @@ def setup_tables():
 
 @app.route('/api/database/status', methods=['GET'])
 def database_status():
-    """Check what tables exist in the database"""
     try:
-        # Get list of all tables
         inspector = db.inspect(db.engine)
         tables = inspector.get_table_names()
-        
-        # Try to get counts from main tables
+    
         table_counts = {}
         try:
             from models.categories import Category
@@ -204,11 +190,9 @@ def database_status():
             'error': str(e)
         }), 500
 
-# Health check endpoint
 @app.route('/health', methods=['GET'])
 def health_check():
     try:
-        # Test database connection
         db.session.execute(db.text('SELECT 1'))
         return jsonify({
             'status': 'healthy',
@@ -226,22 +210,20 @@ if __name__ == '__main__':
     print("Starting Flask server on http://localhost:5000")
     with app.app_context():
         try:
-            # Test the database connection
             inspector = db.inspect(db.engine)
             tables = inspector.get_table_names()
-            print(f"✅ Database connected! Found {len(tables)} tables: {tables}")
+            print(f"Database connected! Found {len(tables)} tables: {tables}")
             
-            # Check if main tables exist
             required_tables = ['categories', 'words', 'vocabulary_sets']
             missing_tables = [t for t in required_tables if t not in tables]
             if missing_tables:
-                print(f"⚠️  Missing tables: {missing_tables}")
-                print("💡 Run POST /api/setup/tables to create them")
+                print(f" Missing tables: {missing_tables}")
+                print(" Run POST /api/setup/tables to create them")
             else:
-                print("✅ All main tables found!")
+                print(" All main tables found!")
                 
         except Exception as e:
-            print(f"⚠️  Database connection issue: {e}")
-            print("💡 Make sure PostgreSQL is running and database exists")
+            print(f" Database connection issue: {e}")
+            print(" Make sure PostgreSQL is running and database exists")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
