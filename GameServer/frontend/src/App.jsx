@@ -11,6 +11,8 @@ import DatabaseManager from './components/DatabaseManager'
 import GameIntegration from './components/GameIntegration'
 import SystemStatus from './components/SystemStatus'
 import AdminUsers from './components/AdminUsers'
+import ScrabbleGameAdmin from './components/ScrabbleGameAdmin'  // New admin component
+import GameAccess from './components/GameAccess'  // New player component
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import './App.css'
@@ -26,25 +28,13 @@ function App() {
   }, [])
 
   async function checkAdminSession() {
-  try {
-    const response = await api.get('/admin/check-session')  // Now uses absolute URL
-    setIsAdminLoggedIn(response.data.logged_in)
-    setAdminUser(response.data.user)
-  } catch (error) {
-    console.error('Session check failed:', error)
-    setIsAdminLoggedIn(false)
-  } finally {
-    setLoading(false)
-  }
-}
-
-  async function checkAdminSession() {
     try {
-      const response = await axios.get('/admin/check-session')
+      const response = await api.get('/admin/check-session')  // Use api utility
       setIsAdminLoggedIn(response.data.logged_in)
       setAdminUser(response.data.user)
     } catch (error) {
       console.error('Session check failed:', error)
+      setIsAdminLoggedIn(false)
     } finally {
       setLoading(false)
     }
@@ -64,18 +54,22 @@ function App() {
           />
         } />
         
-        {!isAdminLoggedIn ? (
+        {isAdminLoggedIn ? (
           <>
+            {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard user={adminUser} />}>
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<SystemStatus />} />
               <Route path="database" element={<DatabaseManager />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="scrabble-game" element={<ScrabbleGameAdmin />} />  {/* New route */}
             </Route>
             
+            {/* Regular User Routes */}
             <Route path="/" element={<Dashboard />}>
               <Route index element={<Navigate to="/game-info" replace />} />
               <Route path="game-info" element={<GameInfo />} />
+              <Route path="games" element={<GameAccess />} />  {/* New route for players */}
               <Route path="add-game" element={<AddGame />} />
               <Route path="memory-pairs" element={<MemoryPairs />} />
               <Route path="vocabulary-sets" element={<VocabularySets />} />

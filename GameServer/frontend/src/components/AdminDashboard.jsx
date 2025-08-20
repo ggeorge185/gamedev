@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate ,useLocation} from 'react-router-dom'
 import { useState } from 'react'
 import axios from 'axios'
 import '../styles/AdminDashboard.css'
@@ -6,6 +6,7 @@ import '../styles/AdminDashboard.css'
 function AdminDashboard({ user }) {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   async function handleLogout() {
     if (loading) return
@@ -38,6 +39,10 @@ function AdminDashboard({ user }) {
           <li><Link to="/game-info">📝 Content Management</Link></li>
           <li><Link to="/vocabulary-sets">📚 Vocabulary Sets</Link></li>
           <li><Link to="/memory-pairs">🃏 Memory Pairs</Link></li>
+          <li><Link to="/admin/scrabble-game" className={location.pathname === '/admin/scrabble-game' ? 'active' : ''}>
+              🎯 Scrabble Game
+            </Link>
+          </li>
           <li className="nav-divider"></li>
           <li>
             <button onClick={handleLogout} disabled={loading} className="logout-button">

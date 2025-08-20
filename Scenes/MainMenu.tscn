@@ -1,5 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://enwj3wk7hwtw"]
+[gd_scene load_steps=3 format=3 uid="uid://enwj3wk7hwtw"]
 
+[ext_resource type="Script" uid="uid://44i0e6ft3o0h" path="res://Scripts/ScrabbleGame.gd" id="2_8saeu"]
 [ext_resource type="Script" uid="uid://bocd1hvkn7e4u" path="res://Scripts/FetchMemoryGameInfo.gd" id="2_853f1"]
 
 [node name="MainMenu" type="Control"]
@@ -37,3 +38,57 @@ text = "Start Game"
 [node name="MapButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 text = "Game Map"
+
+[node name="ScrabbleGame" type="Node2D" parent="."]
+script = ExtResource("2_8saeu")
+
+[node name="UI" type="CanvasLayer" parent="ScrabbleGame"]
+
+[node name="CluesPanel" type="VBoxContainer" parent="ScrabbleGame/UI"]
+offset_left = 350.0
+offset_top = 20.0
+offset_right = 550.0
+offset_bottom = 420.0
+
+[node name="InputField" type="LineEdit" parent="ScrabbleGame/UI"]
+offset_left = 20.0
+offset_top = 60.0
+offset_right = 220.0
+offset_bottom = 100.0
+
+[node name="SubmitButton" type="Button" parent="ScrabbleGame/UI"]
+offset_left = 230.0
+offset_top = 60.0
+offset_right = 310.0
+offset_bottom = 100.0
+text = "Submit"
+
+[node name="ScoreLabel" type="Label" parent="ScrabbleGame/UI"]
+offset_left = 20.0
+offset_top = 100.0
+offset_right = 102.0
+offset_bottom = 149.0
+text = "Found: 0/5
+"
+
+[node name="VocabInfoLabel" type="Label" parent="ScrabbleGame/UI"]
+offset_left = 349.0
+offset_top = 20.0
+offset_right = 549.0
+offset_bottom = 43.0
+text = "Loading vocabulary..."
+
+[node name="FoundWordsList" type="VBoxContainer" parent="ScrabbleGame/UI"]
+offset_left = 580.0
+offset_top = 20.0
+offset_right = 780.0
+offset_bottom = 420.0
+
+[node name="GridContainer" type="GridContainer" parent="ScrabbleGame"]
+offset_left = 20.0
+offset_top = 180.0
+offset_right = 415.0
+offset_bottom = 614.0
+columns = 10
+
+[node name="HTTPRequest" type="HTTPRequest" parent="ScrabbleGame"]

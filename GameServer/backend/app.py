@@ -27,10 +27,12 @@ db.init_app(app)
 from routes.vocabulary_sets import vocab_bp
 from routes.memory_game import memory_bp
 from admin import admin_bp
+from routes.admin_vocab_set import admin_game_bp
 
 app.register_blueprint(admin_bp)
 app.register_blueprint(vocab_bp)
 app.register_blueprint(memory_bp)
+app.register_blueprint(admin_game_bp)
 
 @app.route('/')
 def home():
