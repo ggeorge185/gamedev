@@ -5,14 +5,12 @@ import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 import wordRoute from "./routes/word.route.js";
-import { app, server } from "./socket/socket.js";
 import path from "path";
  
 dotenv.config();
 
-
+const app = express();
 const PORT = process.env.PORT || 3000;
-
 const __dirname = path.resolve();
 
 //middlewares
@@ -29,14 +27,12 @@ app.use(cors(corsOptions));
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/word", wordRoute);
 
-
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 app.get("*", (req,res)=>{
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
 })
 
-
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     connectDB();
     console.log(`Server listen at port ${PORT}`);
 });
