@@ -83,7 +83,7 @@ const SearchPage = () => {
                                 <SelectValue placeholder="Select level" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All Levels</SelectItem>
+                                <SelectItem value="all">All Levels</SelectItem>
                                 <SelectItem value="A1">A1</SelectItem>
                                 <SelectItem value="A2">A2</SelectItem>
                                 <SelectItem value="B1">B1</SelectItem>
@@ -145,3 +145,4 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+
