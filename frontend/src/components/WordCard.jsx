@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
+import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -28,6 +28,16 @@ const WordCard = ({ word }) => {
     const { user } = useSelector(store => store.auth);
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+
+    const [formData, setFormData] = useState({
+        germanWordSingular: word.germanWordSingular,
+        germanWordPlural: word.germanWordPlural || '',
+        article: word.article || '',
+        englishTranslation: word.englishTranslation || '',
+        englishDescription: word.englishDescription || '',
+        jeopardyQuestion: word.jeopardyQuestion || ''
+    });
 
     const isAuthor = user?._id === word.author._id;
 
@@ -53,6 +63,25 @@ const WordCard = ({ word }) => {
         }
     };
 
+    const handleEditSave = async () => {
+        try {
+            setLoading(true);
+            const res = await axios.put(`/api/v1/word/${word._id}`, formData, {
+                withCredentials: true
+            });
+
+            if (res.data.success) {
+                toast.success('Word updated successfully');
+                setIsEditing(false);
+                // Reload page or refetch words if needed
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update word');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const levelColors = {
         'A1': 'bg-green-100 text-green-800',
         'A2': 'bg-green-200 text-green-900',
@@ -63,6 +92,7 @@ const WordCard = ({ word }) => {
     };
 
     return (
+        <>
         <Card className="w-full max-w-md mx-auto">
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -89,7 +119,7 @@ const WordCard = ({ word }) => {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setIsEditing(true)}>
                                     <Edit className="w-4 h-4 mr-2" />
                                     Edit
                                 </DropdownMenuItem>
@@ -220,6 +250,69 @@ const WordCard = ({ word }) => {
                 )}
             </CardContent>
         </Card>
+
+        {/* Edit Modal */}
+        {isEditing && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-6 rounded-lg w-[400px]">
+                    <h3 className="text-lg font-semibold mb-4">Edit Word</h3>
+                    
+                    <input
+                        type="text"
+                        value={formData.germanWordSingular}
+                        onChange={(e) => setFormData({ ...formData, germanWordSingular: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="German Word"
+                    />
+                    
+                    <input
+                        type="text"
+                        value={formData.germanWordPlural}
+                        onChange={(e) => setFormData({ ...formData, germanWordPlural: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="Plural"
+                    />
+
+                    <input
+                        type="text"
+                        value={formData.article}
+                        onChange={(e) => setFormData({ ...formData, article: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="Article (der/die/das)"
+                    />
+
+                    <input
+                        type="text"
+                        value={formData.englishTranslation}
+                        onChange={(e) => setFormData({ ...formData, englishTranslation: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="English Translation"
+                    />
+
+                    <textarea
+                        value={formData.englishDescription}
+                        onChange={(e) => setFormData({ ...formData, englishDescription: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="Description"
+                    />
+
+                    <textarea
+                        value={formData.jeopardyQuestion}
+                        onChange={(e) => setFormData({ ...formData, jeopardyQuestion: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="Jeopardy Question"
+                    />
+
+                    <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                        <Button onClick={handleEditSave} disabled={loading}>
+                            {loading ? 'Saving...' : 'Save'}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 
