@@ -5,10 +5,9 @@ import { Button } from './ui/button';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, BookOpen } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser } from '@/redux/authSlice';
-import PopUp from './PopUp';
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -16,7 +15,6 @@ const Login = () => {
     password: ''
   });
   const [loading, setLoading] = useState(false);
-  const [showPopUp, setShowPopUp] = useState(false);
   const { user } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -25,11 +23,11 @@ const Login = () => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
 
-  const signupHandler = async (e) => {
+  const loginHandler = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await axios.post('https://euphora.onrender.com/api/v1/user/login', input, {
+      const res = await axios.post('/api/v1/user/login', input, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -37,8 +35,8 @@ const Login = () => {
       });
       if (res.data.success) {
         dispatch(setAuthUser(res.data.user));
-        setShowPopUp(true); // Show the pop-up after successful login
         toast.success(res.data.message);
+        navigate('/');
         setInput({
           email: '',
           password: ''
@@ -58,19 +56,16 @@ const Login = () => {
     }
   }, []);
 
-  const handleClosePopUp = () => {
-    setShowPopUp(false);
-    navigate('/'); // Navigate to the main post page after closing the pop-up
-  };
-
   return (
-    <div className='flex items-center w-screen h-screen justify-center' style={{ background: 'url(/background.jpg) no-repeat center center fixed', backgroundSize: 'cover' }}>
-      {showPopUp && <PopUp onClose={handleClosePopUp} />}
-      {!showPopUp && (
-        <form onSubmit={signupHandler} className='shadow-lg flex flex-col gap-5 p-8'>
+    <div className='flex items-center w-screen h-screen justify-center bg-gradient-to-br from-blue-50 to-blue-100'>
+      <div className='w-full max-w-md'>
+        <form onSubmit={loginHandler} className='bg-white shadow-lg rounded-lg flex flex-col gap-5 p-8'>
           <div className='my-4 text-center'>
-            <img src='/image.png' alt='LOGO' style={{ width: '300px', height: 'auto' }} />
-            <p className='text-sm'>Login to see photos from your friends</p>
+            <div className='flex items-center justify-center gap-2 mb-4'>
+              <BookOpen className='w-8 h-8 text-blue-600' />
+              <h1 className='text-2xl font-bold text-blue-600'>German Learner</h1>
+            </div>
+            <p className='text-sm text-gray-600'>Login to manage your German vocabulary</p>
           </div>
           <div>
             <span className='font-medium'>Email</span>
@@ -80,6 +75,7 @@ const Login = () => {
               value={input.email}
               onChange={changeEventHandler}
               className='focus-visible:ring-transparent my-2'
+              required
             />
           </div>
           <div>
@@ -90,21 +86,22 @@ const Login = () => {
               value={input.password}
               onChange={changeEventHandler}
               className='focus-visible:ring-transparent my-2'
+              required
             />
           </div>
           {loading ? (
-            <Button>
+            <Button disabled>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               Please wait
             </Button>
           ) : (
-            <Button type='submit'>Login</Button>
+            <Button type='submit' className='bg-blue-600 hover:bg-blue-700'>Login</Button>
           )}
-          <span className='text-center'>
-            Dosent have an account? <Link to='/signup' className='text-blue-600'>Signup</Link>
+          <span className='text-center text-sm'>
+            Don't have an account? <Link to='/signup' className='text-blue-600 hover:underline'>Sign up</Link>
           </span>
         </form>
-      )}
+      </div>
     </div>
   );
 };

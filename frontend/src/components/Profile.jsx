@@ -1,179 +1,151 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import useGetUserProfile from '@/hooks/useGetUserProfile';
-import { Link, useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { AtSign, Heart, MessageCircle, Trash } from 'lucide-react';
-import { followUser, unfollowUser } from '@/redux/authSlice';
+import { BookOpen, User, Calendar, Mail } from 'lucide-react';
+import WordCard from './WordCard';
 import axios from 'axios';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from './ui/dialog';
+import { toast } from 'sonner';
 
 const Profile = () => {
     const params = useParams();
     const userId = params.id;
-    useGetUserProfile(userId);
-    const [activeTab, setActiveTab] = useState('posts');
-    const [selectedPost, setSelectedPost] = useState(null);
-    const dispatch = useDispatch();
+    const { user } = useSelector(store => store.auth);
+    const [userProfile, setUserProfile] = useState(null);
+    const [userWords, setUserWords] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const { userProfile, user } = useSelector(store => store.auth);
+    const isLoggedInUserProfile = user?._id === userId;
 
-    const isLoggedInUserProfile = user?._id === userProfile?._id;
-    const isFollowing = user?.following.includes(userProfile?._id);
+    useEffect(() => {
+        fetchUserProfile();
+        fetchUserWords();
+    }, [userId]);
 
-    const handleTabChange = (tab) => {
-        setActiveTab(tab);
-    };
-
-    const displayedPost = activeTab === 'posts' ? userProfile?.posts : userProfile?.bookmarks;
-
-    const handleFollow = async () => {
+    const fetchUserProfile = async () => {
         try {
-            await axios.post(`https://euphora.onrender.com/follow/${userProfile?._id}`, {}, { withCredentials: true });
-            dispatch(followUser(userProfile?._id));
+            const res = await axios.get(`/api/v1/user/profile/${userId}`, {
+                withCredentials: true
+            });
+            if (res.data.success) {
+                setUserProfile(res.data.user);
+            }
         } catch (error) {
-            console.error("Follow error:", error);
+            toast.error(error.response?.data?.message || 'Failed to fetch profile');
         }
     };
 
-    const handleUnfollow = async () => {
+    const fetchUserWords = async () => {
         try {
-            await axios.post(`https://euphora.onrender.com/unfollow/${userProfile?._id}`, {}, { withCredentials: true });
-            dispatch(unfollowUser(userProfile?._id));
+            setLoading(true);
+            const res = await axios.get(`/api/v1/word/user${isLoggedInUserProfile ? '' : `?author=${userId}`}`, {
+                withCredentials: true
+            });
+            if (res.data.success) {
+                setUserWords(res.data.words);
+            }
         } catch (error) {
-            console.error("Unfollow error:", error);
+            // Don't show error for empty word collection
+            setUserWords([]);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleDeletePost = async (postId) => {
-        try {
-            await axios.delete(`https://euphora.onrender.com/posts/${postId}`, { withCredentials: true });
-            // Update the user profile after deletion
-            useGetUserProfile(userId);
-        } catch (error) {
-            console.error("Delete post error:", error);
-        }
-    };
-
-    const handleCommentClick = (post) => {
-        alert(`Comments for post: ${post._id}`);
-    };
-
-    const handlePhotoClick = (post) => {
-        setSelectedPost(post);
-    };
-
-    const handleCloseDialog = () => {
-        setSelectedPost(null);
-    };
+    if (!userProfile) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="text-lg">Loading profile...</div>
+            </div>
+        );
+    }
 
     return (
-        <div className='flex max-w-5xl justify-center mx-auto pl-10'>
-            <div className='flex flex-col gap-20 p-8'>
-                <div className='grid grid-cols-2'>
-                    <section className='flex items-center justify-center'>
-                        <Avatar className='h-32 w-32'>
-                            <AvatarImage src={userProfile?.profilePicture} alt="profilephoto" />
-                            <AvatarFallback>
-                            <img src="/profile.png" alt="Fallback Profile" />
-                            </AvatarFallback>
-                        </Avatar>
-                    </section>
-                    <section>
-                        <div className='flex flex-col gap-5'>
-                            <div className='flex items-center gap-2'>
-                                <span>{userProfile?.username}</span>
-                                {isLoggedInUserProfile ? (
-                                    <>
-                                        <Link to="/account/edit"><Button variant='secondary' className='hover:bg-gray-200 h-8'>Edit profile</Button></Link>
-                                    </>
-                                ) : (
-                                    isFollowing ? (
-                                        <>
-                                            <Button onClick={handleUnfollow} variant='secondary' className='h-8'>Unfollow</Button>
-                                            <Button variant='secondary' className='h-8'>Message</Button>
-                                        </>
-                                    ) : (
-                                        <Button onClick={handleFollow} className='bg-[#800000] hover:bg-[#b22222] h-8'>Follow</Button>
-                                    )
-                                )}
+        <div className='max-w-5xl mx-auto p-4'>
+            {/* Profile Header */}
+            <div className='bg-white rounded-lg shadow-sm border p-6 mb-6'>
+                <div className='flex flex-col md:flex-row items-center gap-6'>
+                    <Avatar className='w-24 h-24'>
+                        <AvatarImage src={userProfile?.profilePicture} alt={userProfile?.username} />
+                        <AvatarFallback className="text-2xl">
+                            <User className="w-8 h-8" />
+                        </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className='flex-1 text-center md:text-left'>
+                        <h1 className='text-2xl font-bold mb-2'>{userProfile?.username}</h1>
+                        
+                        {userProfile?.bio && (
+                            <p className='text-gray-600 mb-4'>{userProfile.bio}</p>
+                        )}
+                        
+                        <div className='flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-500'>
+                            <div className='flex items-center gap-1'>
+                                <Mail className='w-4 h-4' />
+                                {userProfile?.email}
                             </div>
-                            <div className='flex items-center gap-4'>
-                                <p><span className='font-semibold'>{userProfile?.posts.length} </span>posts</p>
-                                <p><span className='font-semibold'>{userProfile?.followers.length} </span>followers</p>
-                                <p><span className='font-semibold'>{userProfile?.following.length} </span>following</p>
-                            </div>
-                            <div className='flex flex-col gap-1'>
-                                <span className='font-semibold'>{userProfile?.bio || 'bio here...'}</span>
-                                <Badge className='w-fit' variant='secondary'><AtSign /> <span className='pl-1'>{userProfile?.username}</span> </Badge>
+                            <div className='flex items-center gap-1'>
+                                <Calendar className='w-4 h-4' />
+                                Joined {new Date(userProfile?.createdAt).toLocaleDateString()}
                             </div>
                         </div>
-                    </section>
-                </div>
-                <div className='border-t border-t-gray-200'>
-                    <div className='flex items-center justify-center gap-10 text-sm'>
-                        <span className={`py-3 cursor-pointer ${activeTab === 'posts' ? 'font-bold' : ''}`} onClick={() => handleTabChange('posts')}>
-                            POSTS
-                        </span>
-                        <span className={`py-3 cursor-pointer ${activeTab === 'saved' ? 'font-bold' : ''}`} onClick={() => handleTabChange('saved')}>
-                            SAVED
-                        </span>
                     </div>
-                    <div className='grid grid-cols-3 gap-1'>
-                        {displayedPost?.map((post) => (
-                            <div key={post?._id} className='relative group cursor-pointer' onClick={() => handlePhotoClick(post)}>
-                                <img src={post.image} alt='postimage' className='rounded-sm my-2 w-full aspect-square object-cover' />
-                                <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                                    <div className='flex items-center text-white space-x-4'>
-                                        <button className='flex items-center gap-2 hover:text-gray-300'>
-                                            <Heart />
-                                            <span>{post?.likes.length}</span>
-                                        </button>
-                                        <button className='flex items-center gap-2 hover:text-gray-300' onClick={(e) => { e.stopPropagation(); handleCommentClick(post); }}>
-                                            <MessageCircle />
-                                            <span>{post?.comments.length}</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                </div>
+                
+                {/* Stats */}
+                <div className='grid grid-cols-3 gap-4 mt-6 pt-6 border-t'>
+                    <div className='text-center'>
+                        <div className='text-2xl font-bold text-blue-600'>{userWords.length}</div>
+                        <div className='text-sm text-gray-600'>Words</div>
+                    </div>
+                    <div className='text-center'>
+                        <div className='text-2xl font-bold text-green-600'>
+                            {userWords.filter(word => word.languageLevel === 'A1' || word.languageLevel === 'A2').length}
+                        </div>
+                        <div className='text-sm text-gray-600'>Beginner</div>
+                    </div>
+                    <div className='text-center'>
+                        <div className='text-2xl font-bold text-purple-600'>
+                            {userWords.filter(word => word.languageLevel === 'B1' || word.languageLevel === 'B2' || word.languageLevel === 'C1' || word.languageLevel === 'C2').length}
+                        </div>
+                        <div className='text-sm text-gray-600'>Advanced</div>
                     </div>
                 </div>
             </div>
 
-            {selectedPost && (
-                <Dialog open={!!selectedPost} onOpenChange={handleCloseDialog}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Post Details</DialogTitle>
-                        </DialogHeader>
-                        <div>
-                            <img src={selectedPost.image} alt='postimage' className='w-full aspect-square object-cover' />
-                            <div className='flex items-center justify-around mt-4'>
-                                <button className='flex items-center gap-2'>
-                                    <Heart />
-                                    <span>{selectedPost.likes.length}</span>
-                                </button>
-                                <button className='flex items-center gap-2'>
-                                    <MessageCircle />
-                                    <span>{selectedPost.comments.length}</span>
-                                </button>
-                                {isLoggedInUserProfile && (
-                                    <button onClick={() => handleDeletePost(selectedPost._id)} className='flex items-center gap-2 text-red-600'>
-                                        <Trash />
-                                        <span>Delete</span>
-                                    </button>
-                                )}
-                            </div>
+            {/* Words Section */}
+            <div className='bg-white rounded-lg shadow-sm border p-6'>
+                <div className='flex items-center gap-2 mb-6'>
+                    <BookOpen className='w-5 h-5 text-blue-600' />
+                    <h2 className='text-xl font-semibold'>
+                        {isLoggedInUserProfile ? 'My German Words' : `${userProfile?.username}'s German Words`}
+                    </h2>
+                </div>
+
+                {loading ? (
+                    <div className="text-center py-8">
+                        <div className="text-gray-500">Loading words...</div>
+                    </div>
+                ) : userWords.length === 0 ? (
+                    <div className="text-center py-12">
+                        <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <div className="text-gray-500 text-lg mb-2">
+                            {isLoggedInUserProfile ? 'No words in your collection yet' : 'No words shared by this user'}
                         </div>
-                        <DialogFooter>
-                            <Button onClick={handleCloseDialog}>Close</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            )}
+                        <div className="text-gray-400">
+                            {isLoggedInUserProfile && 'Start building your German vocabulary!'}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {userWords.map(word => (
+                            <WordCard key={word._id} word={word} />
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
