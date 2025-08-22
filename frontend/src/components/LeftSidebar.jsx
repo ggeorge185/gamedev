@@ -50,17 +50,6 @@ const LeftSidebar = () => {
         { icon: <Search />, text: "Search" },
         { icon: <PlusSquare />, text: "Add Word" },
         { icon: <BookOpen />, text: "My Words" },
-        {
-            icon: (
-                <Avatar className='w-6 h-6'>
-                    <AvatarImage src={user?.profilePicture} alt="profile" />
-                    <AvatarFallback>
-                        <User className="w-4 h-4" />
-                    </AvatarFallback>
-                </Avatar>
-            ),
-            text: "Profile"
-        },
         { icon: <LogOut />, text: "Logout" },
     ]
 
@@ -86,4 +75,5 @@ const LeftSidebar = () => {
 }
 
 export default LeftSidebar
+
 
