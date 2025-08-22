@@ -19,7 +19,7 @@ const SearchPage = () => {
     const [hasSearched, setHasSearched] = useState(false);
 
     const handleSearch = async () => {
-        if (!searchQuery.trim() && !levelFilter && !topicFilter) {
+        if (!searchQuery.trim() && (!levelFilter || levelFilter === "all") && (!topicFilter || topicFilter === "all")) {
             toast.error('Please enter search criteria');
             return;
         }
@@ -27,7 +27,7 @@ const SearchPage = () => {
         try {
             setLoading(true);
             const params = new URLSearchParams();
-            
+        
             if (searchQuery.trim()) params.append('query', searchQuery.trim());
             if (levelFilter && levelFilter !== "all") params.append('level', levelFilter);
             if (topicFilter && topicFilter !== "all") params.append('topic', topicFilter);
@@ -145,5 +145,6 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+
 
 
