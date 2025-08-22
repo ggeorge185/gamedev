@@ -14,8 +14,8 @@ const MyWords = () => {
     const { userWords } = useSelector(store => store.word);
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState('');
-    const [levelFilter, setLevelFilter] = useState('');
-    const [topicFilter, setTopicFilter] = useState('');
+    const [levelFilter, setLevelFilter] = useState('all-levels');
+    const [topicFilter, setTopicFilter] = useState('all-topics');
     const [filteredWords, setFilteredWords] = useState([]);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -57,11 +57,11 @@ const MyWords = () => {
             );
         }
 
-        if (levelFilter) {
+        if (levelFilter && levelFilter !== 'all-levels') {
             filtered = filtered.filter(word => word.languageLevel === levelFilter);
         }
 
-        if (topicFilter) {
+        if (topicFilter && topicFilter !== 'all-topics') {
             filtered = filtered.filter(word => 
                 word.topic.toLowerCase().includes(topicFilter.toLowerCase())
             );
@@ -72,8 +72,8 @@ const MyWords = () => {
 
     const clearFilters = () => {
         setSearchQuery('');
-        setLevelFilter('');
-        setTopicFilter('');
+        setLevelFilter('all-levels');
+        setTopicFilter('all-topics');
     };
 
     // Get unique topics for filter dropdown
@@ -121,7 +121,7 @@ const MyWords = () => {
                             <SelectValue placeholder="Filter by level" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">All Levels</SelectItem>
+                            <SelectItem value="all-levels">All Levels</SelectItem>
                             <SelectItem value="A1">A1</SelectItem>
                             <SelectItem value="A2">A2</SelectItem>
                             <SelectItem value="B1">B1</SelectItem>
@@ -137,7 +137,7 @@ const MyWords = () => {
                             <SelectValue placeholder="Filter by topic" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">All Topics</SelectItem>
+                            <SelectItem value="all-topics">All Topics</SelectItem>
                             {topics.map(topic => (
                                 <SelectItem key={topic} value={topic}>
                                     {topic}
