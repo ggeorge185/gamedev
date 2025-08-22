@@ -121,7 +121,7 @@ const MyWords = () => {
                             <SelectValue placeholder="Filter by level" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">All Levels</SelectItem>
+                            <SelectItem value="all">All Levels</SelectItem>
                             <SelectItem value="A1">A1</SelectItem>
                             <SelectItem value="A2">A2</SelectItem>
                             <SelectItem value="B1">B1</SelectItem>
@@ -137,7 +137,7 @@ const MyWords = () => {
                             <SelectValue placeholder="Filter by topic" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">All Topics</SelectItem>
+                            <SelectItem value="all">All Topics</SelectItem>
                             {topics.map(topic => (
                                 <SelectItem key={topic} value={topic}>
                                     {topic}
