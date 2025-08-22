@@ -12,14 +12,14 @@ import { toast } from 'sonner';
 const SearchPage = () => {
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState('');
-    const [levelFilter, setLevelFilter] = useState('');
+    const [levelFilter, setLevelFilter] = useState('all-levels');
     const [topicFilter, setTopicFilter] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
     const handleSearch = async () => {
-        if (!searchQuery.trim() && !levelFilter && !topicFilter) {
+        if (!searchQuery.trim() && (!levelFilter || levelFilter === 'all-levels') && !topicFilter) {
             toast.error('Please enter search criteria');
             return;
         }
@@ -29,7 +29,7 @@ const SearchPage = () => {
             const params = new URLSearchParams();
             
             if (searchQuery.trim()) params.append('query', searchQuery.trim());
-            if (levelFilter) params.append('level', levelFilter);
+            if (levelFilter && levelFilter !== 'all-levels') params.append('level', levelFilter);
             if (topicFilter) params.append('topic', topicFilter);
 
             const res = await axios.get(`/api/v1/word/search?${params.toString()}`, {
@@ -49,7 +49,7 @@ const SearchPage = () => {
 
     const clearSearch = () => {
         setSearchQuery('');
-        setLevelFilter('');
+        setLevelFilter('all-levels');
         setTopicFilter('');
         setSearchResults([]);
         setHasSearched(false);
@@ -83,7 +83,7 @@ const SearchPage = () => {
                                 <SelectValue placeholder="Select level" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All Levels</SelectItem>
+                                <SelectItem value="all-levels">All Levels</SelectItem>
                                 <SelectItem value="A1">A1</SelectItem>
                                 <SelectItem value="A2">A2</SelectItem>
                                 <SelectItem value="B1">B1</SelectItem>
