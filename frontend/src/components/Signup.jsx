@@ -61,7 +61,7 @@ const Signup = () => {
                     <div className='my-4 text-center'>
                         <div className='flex items-center justify-center gap-2 mb-4'>
                             <BookOpen className='w-8 h-8 text-blue-600' />
-                            <h1 className='text-2xl font-bold text-blue-600'>German Learner</h1>
+                            <h1 className='text-2xl font-bold text-blue-600'>Serious Game Admin dashboard</h1>
                         </div>
                         <p className='text-sm text-gray-600'>Create an account to start building your German vocabulary</p>
                     </div>
@@ -116,3 +116,4 @@ const Signup = () => {
 }
 
 export default Signup
+
