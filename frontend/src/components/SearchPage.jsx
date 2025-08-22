@@ -29,8 +29,8 @@ const SearchPage = () => {
             const params = new URLSearchParams();
             
             if (searchQuery.trim()) params.append('query', searchQuery.trim());
-            if (levelFilter) params.append('level', levelFilter);
-            if (topicFilter) params.append('topic', topicFilter);
+            if (levelFilter && levelFilter !== "all") params.append('level', levelFilter);
+            if (topicFilter && topicFilter !== "all") params.append('topic', topicFilter);
 
             const res = await axios.get(`/api/v1/word/search?${params.toString()}`, {
                 withCredentials: true
@@ -145,4 +145,5 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+
 
