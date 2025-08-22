@@ -1,6 +1,6 @@
 import { Word } from "../models/word.model.js";
 import { User } from "../models/user.model.js";
-import { getDataUri } from "../utils/datauri.js";
+import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 
 export const addWord = async (req, res) => {
