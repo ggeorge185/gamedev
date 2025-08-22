@@ -55,14 +55,12 @@ const WordList = () => {
             );
         }
 
-        if (levelFilter) {
+
+        if (levelFilter && levelFilter !== "all") {
             filtered = filtered.filter(word => word.languageLevel === levelFilter);
         }
-
-        if (topicFilter) {
-            filtered = filtered.filter(word => 
-                word.topic.toLowerCase().includes(topicFilter.toLowerCase())
-            );
+        if (topicFilter && topicFilter !== "all") {
+            filtered = filtered.filter(word => word.topic.toLowerCase().includes(topicFilter.toLowerCase()));
         }
 
         setFilteredWords(filtered);
