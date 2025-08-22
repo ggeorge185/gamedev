@@ -25,17 +25,20 @@ const Profile = () => {
     }, [userId]);
 
     const fetchUserProfile = async () => {
-        try {
-            const res = await axios.get(`/api/v1/user/profile/${userId}`, {
-                withCredentials: true
-            });
-            if (res.data.success) {
-                setUserProfile(res.data.user);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to fetch profile');
+    try {
+        const res = await axios.get(`/api/v1/user/profile/${userId}`, {
+            withCredentials: true
+        });
+        if (res.data.success && res.data.user) {
+            setUserProfile(res.data.user);
+        } else {
+            setUserProfile(false); // not found or error
         }
-    };
+    } catch (error) {
+        setUserProfile(false); // also on error
+        toast.error(error.response?.data?.message || 'Failed to fetch profile');
+    }
+};
 
     const fetchUserWords = async () => {
         try {
@@ -53,14 +56,21 @@ const Profile = () => {
             setLoading(false);
         }
     };
-
-    if (!userProfile) {
+    if (userProfile === null) {
+    return (
+        <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-lg">Loading profile...</div>
+        </div>
+        );
+    }
+    if (userProfile === false) {
         return (
             <div className="flex justify-center items-center min-h-[400px]">
-                <div className="text-lg">Loading profile...</div>
+                <div className="text-lg text-red-600">Profile not found!</div>
             </div>
         );
     }
+    
 
     return (
         <div className='max-w-5xl mx-auto p-4'>
