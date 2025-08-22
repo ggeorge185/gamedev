@@ -44,7 +44,7 @@ export const addWord = async (req, res) => {
         let imageUrl = '';
         if (req.file) {
             const fileUri = getDataUri(req.file);
-            const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+            const cloudResponse = await cloudinary.uploader.upload(fileUri);
             imageUrl = cloudResponse.secure_url;
         }
 
@@ -222,7 +222,7 @@ export const updateWord = async (req, res) => {
         let imageUrl = word.image;
         if (req.file) {
             const fileUri = getDataUri(req.file);
-            const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+            const cloudResponse = await cloudinary.uploader.upload(fileUri);
             imageUrl = cloudResponse.secure_url;
         }
 
