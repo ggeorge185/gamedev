@@ -67,7 +67,7 @@ const LeftSidebar = () => {
     return (
         <div className='fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen bg-white'>
             <div className='flex flex-col'>
-                <h1 className='my-8 pl-3 font-bold text-xl text-blue-600'>German Learner</h1>
+                <h1 className='my-8 pl-3 font-bold text-xl text-blue-600'>Serious Game admin board</h1>
                 <div>
                     {sidebarItems.map((item, index) => {
                         return (
@@ -86,3 +86,4 @@ const LeftSidebar = () => {
 }
 
 export default LeftSidebar
+
