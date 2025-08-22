@@ -1,260 +1,465 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
-import { Badge } from './ui/badge';
+import React, { useRef, useState } from 'react';
+import { Dialog, DialogContent, DialogHeader } from './ui/dialog';
 import { Button } from './ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { 
-    MoreHorizontal, 
-    Trash2, 
-    Edit, 
-    BookOpen, 
-    Globe, 
-    MessageSquare,
-    Tag,
-    Star
-} from 'lucide-react';
-import { 
-    DropdownMenu, 
-    DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuTrigger 
-} from './ui/dropdown-menu';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { useDispatch, useSelector } from 'react-redux';
-import { deleteWord, updateWord } from '@/redux/wordSlice';
-import axios from 'axios';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Label } from './ui/label';
+import { Badge } from './ui/badge';
+import { X, Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { addWord } from '@/redux/wordSlice';
+import { readFileAsDataURL } from '@/lib/utils';
 
-const WordCard = ({ word }) => {
-    const { user } = useSelector(store => store.auth);
-    const dispatch = useDispatch();
-    const [loading, setLoading] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
+const topicOptions = [
+  "accommodation",
+  "university related",
+  "city registration",
+  "transportation",
+  "add-category"
+];
 
-    const [formData, setFormData] = useState({
-        article: word.article || '',
-        germanWordSingular: word.germanWordSingular || '',
-        germanWordPlural: word.germanWordPlural || '',
-        englishTranslation: word.englishTranslation || '',
-        englishDescription: word.englishDescription || '',
-        jeopardyQuestion: word.jeopardyQuestion || '',
-        topic: word.topic || '',
-        languageLevel: word.languageLevel || ''
-    });
+const AddWordForm = ({ open, setOpen }) => {
+  const imageRef = useRef();
+  const dispatch = useDispatch();
 
-    const isAuthor = user?._id === word.author._id;
+  const [formData, setFormData] = useState({
+    germanWordSingular: '',
+    germanWordPlural: '',
+    article: '',
+    topic: '',
+    languageLevel: 'A1',
+    englishTranslation: '',
+    englishDescription: '',
+    jeopardyQuestion: '',
+    clues: [],
+    synonyms: [],
+    furtherCharacteristics: []
+  });
 
-    const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this word?')) {
-            return;
-        }
+  const [file, setFile] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
+  const [loading, setLoading] = useState(false);
 
-        try {
-            setLoading(true);
-            const res = await axios.delete(`/api/v1/word/${word._id}`, {
-                withCredentials: true
-            });
+  const [newClue, setNewClue] = useState('');
+  const [newSynonym, setNewSynonym] = useState('');
+  const [newCharacteristic, setNewCharacteristic] = useState('');
 
-            if (res.data.success) {
-                dispatch(deleteWord(word._id));
-                toast.success(res.data.message);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to delete word');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const [showCustomTopic, setShowCustomTopic] = useState(false);
 
-    const handleEditSave = async () => {
-        try {
-            setLoading(true);
-            const res = await axios.put(`/api/v1/word/${word._id}`, formData, {
-                withCredentials: true
-            });
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-            if (res.data.success) {
-                dispatch(updateWord(res.data.word)); // ✅ update Redux
-                toast.success('Word updated successfully');
-                setIsEditing(false);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to update word');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleImageChange = async (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const dataUrl = await readFileAsDataURL(selectedFile);
+      setImagePreview(dataUrl);
+    }
+  };
 
-    const levelColors = {
-        'A1': 'bg-green-100 text-green-800',
-        'A2': 'bg-green-200 text-green-900',
-        'B1': 'bg-blue-100 text-blue-800',
-        'B2': 'bg-blue-200 text-blue-900',
-        'C1': 'bg-purple-100 text-purple-800',
-        'C2': 'bg-purple-200 text-purple-900'
-    };
+  const addToArray = (arrayField, value, setter) => {
+    if (value.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        [arrayField]: [...prev[arrayField], value.trim()]
+      }));
+      setter('');
+    }
+  };
 
-    return (
-        <Card className="w-full max-w-md mx-auto">
-            <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Avatar className="w-8 h-8">
-                            <AvatarImage src={word.author?.profilePicture} alt={word.author?.username} />
-                            <AvatarFallback>
-                                {word.author?.username?.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className="font-medium text-sm">{word.author?.username}</p>
-                            <p className="text-xs text-gray-500">
-                                {new Date(word.createdAt).toLocaleDateString()}
-                            </p>
-                        </div>
-                    </div>
-                    
-                    {isAuthor && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                    <MoreHorizontal className="w-4 h-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                    onClick={handleDelete}
-                                    disabled={loading}
-                                    className="text-red-600"
-                                >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
+  const removeFromArray = (arrayField, index) => {
+    setFormData(prev => ({
+      ...prev,
+      [arrayField]: prev[arrayField].filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.germanWordSingular || !formData.article || !formData.topic) {
+      toast.error('German word, article, and topic are required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const submitData = new FormData();
+      submitData.append('germanWordSingular', formData.germanWordSingular);
+      submitData.append('germanWordPlural', formData.germanWordPlural);
+      submitData.append('article', formData.article);
+      submitData.append('topic', formData.topic);
+      submitData.append('languageLevel', formData.languageLevel);
+      submitData.append('englishTranslation', formData.englishTranslation);
+      submitData.append('englishDescription', formData.englishDescription);
+      submitData.append('jeopardyQuestion', formData.jeopardyQuestion);
+      submitData.append('clues', JSON.stringify(formData.clues));
+      submitData.append('synonyms', JSON.stringify(formData.synonyms));
+      submitData.append('furtherCharacteristics', JSON.stringify(formData.furtherCharacteristics));
+
+      if (file) {
+        submitData.append('image', file);
+      }
+
+      const res = await axios.post('/api/v1/word/add', submitData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true
+      });
+
+      if (res.data.success) {
+        dispatch(addWord(res.data.word));
+        toast.success(res.data.message);
+        setOpen(false);
+
+        // Reset form
+        setFormData({
+          germanWordSingular: '',
+          germanWordPlural: '',
+          article: '',
+          topic: '',
+          languageLevel: 'A1',
+          englishTranslation: '',
+          englishDescription: '',
+          jeopardyQuestion: '',
+          clues: [],
+          synonyms: [],
+          furtherCharacteristics: []
+        });
+        setFile('');
+        setImagePreview('');
+        setShowCustomTopic(false);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add word');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open}>
+      <DialogContent
+        onInteractOutside={() => setOpen(false)}
+        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <DialogHeader className="text-center font-semibold">Add New German Word</DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Required Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="germanWordSingular">German Word (Singular) *</Label>
+              <Input
+                id="germanWordSingular"
+                value={formData.germanWordSingular}
+                onChange={(e) => handleInputChange('germanWordSingular', e.target.value)}
+                placeholder="e.g., Haus"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="germanWordPlural">German Word (Plural)</Label>
+              <Input
+                id="germanWordPlural"
+                value={formData.germanWordPlural}
+                onChange={(e) => handleInputChange('germanWordPlural', e.target.value)}
+                placeholder="e.g., Häuser"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="article">Article *</Label>
+              <Select
+                value={formData.article}
+                onValueChange={(value) => handleInputChange('article', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select article" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="der">der</SelectItem>
+                  <SelectItem value="die">die</SelectItem>
+                  <SelectItem value="das">das</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="topic">Topic *</Label>
+              <Select
+                value={showCustomTopic ? "add-category" : formData.topic}
+                onValueChange={(value) => {
+                  if (value === "add-category") {
+                    setShowCustomTopic(true);
+                    handleInputChange('topic', '');
+                  } else {
+                    setShowCustomTopic(false);
+                    handleInputChange('topic', value);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select topic" />
+                </SelectTrigger>
+                <SelectContent>
+                  {topicOptions.map((opt) => (
+                    <SelectItem key={opt} value={opt}>
+                      {opt === "add-category"
+                        ? "Add category"
+                        : opt.charAt(0).toUpperCase() + opt.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {showCustomTopic && (
+                <Input
+                  value={formData.topic}
+                  onChange={(e) => handleInputChange('topic', e.target.value)}
+                  placeholder="Enter custom topic"
+                  required
+                  className="mt-2"
+                />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="languageLevel">Language Level</Label>
+            <Select
+              value={formData.languageLevel}
+              onValueChange={(value) => handleInputChange('languageLevel', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="A1">A1</SelectItem>
+                <SelectItem value="A2">A2</SelectItem>
+                <SelectItem value="B1">B1</SelectItem>
+                <SelectItem value="B2">B2</SelectItem>
+                <SelectItem value="C1">C1</SelectItem>
+                <SelectItem value="C2">C2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Image Upload */}
+          <div>
+            <Label>Image</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              {imagePreview ? (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-32 object-cover rounded"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => {
+                      setImagePreview('');
+                      setFile('');
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
-            </CardHeader>
+              ) : (
+                <div
+                  className="text-center cursor-pointer"
+                  onClick={() => imageRef.current.click()}
+                >
+                  <p className="text-gray-500">Click to upload image</p>
+                </div>
+              )}
+              <input
+                ref={imageRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+            </div>
+          </div>
 
-            <CardContent className="space-y-4">
-                {isEditing ? (
-                    <div className="space-y-3">
-                        <Input
-                            placeholder="Article"
-                            value={formData.article}
-                            onChange={e => setFormData({ ...formData, article: e.target.value })}
-                        />
-                        <Input
-                            placeholder="Singular"
-                            value={formData.germanWordSingular}
-                            onChange={e => setFormData({ ...formData, germanWordSingular: e.target.value })}
-                        />
-                        <Input
-                            placeholder="Plural"
-                            value={formData.germanWordPlural}
-                            onChange={e => setFormData({ ...formData, germanWordPlural: e.target.value })}
-                        />
-                        <Input
-                            placeholder="English Translation"
-                            value={formData.englishTranslation}
-                            onChange={e => setFormData({ ...formData, englishTranslation: e.target.value })}
-                        />
-                        <Textarea
-                            placeholder="Description"
-                            value={formData.englishDescription}
-                            onChange={e => setFormData({ ...formData, englishDescription: e.target.value })}
-                        />
-                        <Textarea
-                            placeholder="Jeopardy Question"
-                            value={formData.jeopardyQuestion}
-                            onChange={e => setFormData({ ...formData, jeopardyQuestion: e.target.value })}
-                        />
-                        <Input
-                            placeholder="Topic"
-                            value={formData.topic}
-                            onChange={e => setFormData({ ...formData, topic: e.target.value })}
-                        />
-                        <Input
-                            placeholder="Language Level"
-                            value={formData.languageLevel}
-                            onChange={e => setFormData({ ...formData, languageLevel: e.target.value })}
-                        />
-                        <div className="flex gap-2">
-                            <Button onClick={handleEditSave} disabled={loading}>
-                                Save
-                            </Button>
-                            <Button variant="outline" onClick={() => setIsEditing(false)}>
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        {/* German Word Section */}
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 mb-2">
-                                <span className="text-sm font-medium text-blue-600">{word.article}</span>
-                                <h3 className="text-2xl font-bold text-gray-900">{word.germanWordSingular}</h3>
-                            </div>
-                            {word.germanWordPlural && (
-                                <p className="text-lg text-gray-600">
-                                    Plural: <span className="font-medium">{word.germanWordPlural}</span>
-                                </p>
-                            )}
-                        </div>
+          {/* Translation and Description */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="englishTranslation">English Translation</Label>
+              <Input
+                id="englishTranslation"
+                value={formData.englishTranslation}
+                onChange={(e) => handleInputChange('englishTranslation', e.target.value)}
+                placeholder="e.g., house"
+              />
+            </div>
 
-                        {/* Topic and Level */}
-                        <div className="flex items-center justify-between">
-                            <Badge variant="outline" className="flex items-center gap-1">
-                                <Tag className="w-3 h-3" />
-                                {word.topic}
-                            </Badge>
-                            <Badge className={levelColors[word.languageLevel] || 'bg-gray-100 text-gray-800'}>
-                                {word.languageLevel}
-                            </Badge>
-                        </div>
+            <div>
+              <Label htmlFor="jeopardyQuestion">Jeopardy Question</Label>
+              <Input
+                id="jeopardyQuestion"
+                value={formData.jeopardyQuestion}
+                onChange={(e) => handleInputChange('jeopardyQuestion', e.target.value)}
+                placeholder="Question that prompts this word"
+              />
+            </div>
+          </div>
 
-                        {/* English Translation */}
-                        {word.englishTranslation && (
-                            <div className="flex items-start gap-2">
-                                <Globe className="w-4 h-4 mt-1 text-gray-500" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700">English:</p>
-                                    <p className="text-sm text-gray-600">{word.englishTranslation}</p>
-                                </div>
-                            </div>
-                        )}
+          <div>
+            <Label htmlFor="englishDescription">English Description</Label>
+            <Textarea
+              id="englishDescription"
+              value={formData.englishDescription}
+              onChange={(e) => handleInputChange('englishDescription', e.target.value)}
+              placeholder="Detailed description in English"
+              rows={3}
+            />
+          </div>
 
-                        {/* English Description */}
-                        {word.englishDescription && (
-                            <div className="flex items-start gap-2">
-                                <BookOpen className="w-4 h-4 mt-1 text-gray-500" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700">Description:</p>
-                                    <p className="text-sm text-gray-600">{word.englishDescription}</p>
-                                </div>
-                            </div>
-                        )}
+          {/* Arrays */}
+          <div className="space-y-4">
+            {/* Clues */}
+            <div>
+              <Label>Clues</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newClue}
+                  onChange={(e) => setNewClue(e.target.value)}
+                  placeholder="Add a clue"
+                  onKeyPress={(e) =>
+                    e.key === 'Enter' &&
+                    (e.preventDefault(), addToArray('clues', newClue, setNewClue))
+                  }
+                />
+                <Button
+                  type="button"
+                  onClick={() => addToArray('clues', newClue, setNewClue)}
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.clues.map((clue, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                    {clue}
+                    <X
+                      className="w-3 h-3 cursor-pointer"
+                      onClick={() => removeFromArray('clues', index)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            </div>
 
-                        {/* Jeopardy Question */}
-                        {word.jeopardyQuestion && (
-                            <div className="flex items-start gap-2">
-                                <MessageSquare className="w-4 h-4 mt-1 text-gray-500" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700">Jeopardy Question:</p>
-                                    <p className="text-sm text-gray-600">{word.jeopardyQuestion}</p>
-                                </div>
-                            </div>
-                        )}
-                    </>
-                )}
-            </CardContent>
-        </Card>
-    );
+            {/* Synonyms */}
+            <div>
+              <Label>Synonyms</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newSynonym}
+                  onChange={(e) => setNewSynonym(e.target.value)}
+                  placeholder="Add a synonym"
+                  onKeyPress={(e) =>
+                    e.key === 'Enter' &&
+                    (e.preventDefault(), addToArray('synonyms', newSynonym, setNewSynonym))
+                  }
+                />
+                <Button
+                  type="button"
+                  onClick={() => addToArray('synonyms', newSynonym, setNewSynonym)}
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.synonyms.map((synonym, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                    {synonym}
+                    <X
+                      className="w-3 h-3 cursor-pointer"
+                      onClick={() => removeFromArray('synonyms', index)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Further Characteristics */}
+            <div>
+              <Label>Further Characteristics</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newCharacteristic}
+                  onChange={(e) => setNewCharacteristic(e.target.value)}
+                  placeholder="Add a characteristic"
+                  onKeyPress={(e) =>
+                    e.key === 'Enter' &&
+                    (e.preventDefault(),
+                    addToArray('furtherCharacteristics', newCharacteristic, setNewCharacteristic))
+                  }
+                />
+                <Button
+                  type="button"
+                  onClick={() =>
+                    addToArray('furtherCharacteristics', newCharacteristic, setNewCharacteristic)
+                  }
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.furtherCharacteristics.map((char, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                    {char}
+                    <X
+                      className="w-3 h-3 cursor-pointer"
+                      onClick={() => removeFromArray('furtherCharacteristics', index)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                'Add Word'
+              )}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
-export default WordCard;
+export default AddWordForm;
