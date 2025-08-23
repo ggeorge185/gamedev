@@ -150,12 +150,12 @@ export const deleteWord = async (req, res) => {
         }
 
         // Check if user owns this word
-        if (word.author.toString() !== authorId) {
-            return res.status(403).json({
-                message: 'Unauthorized to delete this word',
-                success: false
-            });
-        }
+        //if (word.author.toString() !== authorId) {
+        //    return res.status(403).json({
+        //        message: 'Unauthorized to delete this word',
+        //        success: false
+        //    });
+        //}
 
         await Word.findByIdAndDelete(wordId);
 
