@@ -23,6 +23,7 @@ const topicOptions = [
 
 const AddWordForm = ({ open, setOpen }) => {
   const imageRef = useRef();
+  const fileInputRef = useRef();
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
@@ -42,6 +43,7 @@ const AddWordForm = ({ open, setOpen }) => {
   const [file, setFile] = useState('');
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
+  const [bulkUploading, setBulkUploading] = useState(false);
 
   const [newClue, setNewClue] = useState('');
   const [newSynonym, setNewSynonym] = useState('');
@@ -120,7 +122,6 @@ const AddWordForm = ({ open, setOpen }) => {
         toast.success(res.data.message);
         setOpen(false);
 
-        // Reset form
         setFormData({
           germanWordSingular: '',
           germanWordPlural: '',
@@ -145,6 +146,36 @@ const AddWordForm = ({ open, setOpen }) => {
     }
   };
 
+  const handleJSONUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.name.endsWith('.json')) {
+      toast.error('Only JSON files are supported');
+      return;
+    }
+    setBulkUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await axios.post('/api/v1/word/bulk-upload-json', formData, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data.success) {
+        toast.success(`${res.data.count} words uploaded successfully!`);
+        setOpen(false);
+      } else {
+        toast.error(res.data.message || 'Bulk upload failed');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Bulk upload error');
+    } finally {
+      setBulkUploading(false);
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <Dialog open={open}>
       <DialogContent
@@ -152,9 +183,23 @@ const AddWordForm = ({ open, setOpen }) => {
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <DialogHeader className="text-center font-semibold">Add New German Word</DialogHeader>
+        
+        <div className="my-4">
+          <label htmlFor="json-upload" className="block text-sm mb-1">Bulk Upload (JSON):</label>
+          <input
+            id="json-upload"
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleJSONUpload}
+            disabled={bulkUploading}
+          />
+          <small className="text-gray-500 block mt-1">
+            Download a <a href="/example.json" className="underline">JSON template</a>.
+          </small>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Required Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="germanWordSingular">German Word (Singular) *</Label>
@@ -256,7 +301,6 @@ const AddWordForm = ({ open, setOpen }) => {
             </Select>
           </div>
 
-          {/* Image Upload */}
           <div>
             <Label>Image</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -298,7 +342,6 @@ const AddWordForm = ({ open, setOpen }) => {
             </div>
           </div>
 
-          {/* Translation and Description */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="englishTranslation">English Translation</Label>
@@ -332,9 +375,7 @@ const AddWordForm = ({ open, setOpen }) => {
             />
           </div>
 
-          {/* Arrays */}
           <div className="space-y-4">
-            {/* Clues */}
             <div>
               <Label>Clues</Label>
               <div className="flex gap-2 mb-2">
@@ -368,7 +409,6 @@ const AddWordForm = ({ open, setOpen }) => {
               </div>
             </div>
 
-            {/* Synonyms */}
             <div>
               <Label>Synonyms</Label>
               <div className="flex gap-2 mb-2">
@@ -402,7 +442,6 @@ const AddWordForm = ({ open, setOpen }) => {
               </div>
             </div>
 
-            {/* Further Characteristics */}
             <div>
               <Label>Further Characteristics</Label>
               <div className="flex gap-2 mb-2">
@@ -440,7 +479,6 @@ const AddWordForm = ({ open, setOpen }) => {
             </div>
           </div>
 
-          {/* Submit Button */}
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
