@@ -2,6 +2,52 @@ import { Word } from "../models/word.model.js";
 import { User } from "../models/user.model.js";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
+import multer from "multer";
+
+// Multer setup for bulk upload (JSON)
+const upload = multer({ dest: 'tmp/' });
+
+// BULK IMPORT FUNCTION (JSON)
+export const bulkUploadJSON = [
+  upload.single('file'),
+  async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+    const authorId = req.id;
+    try {
+      // Read uploaded JSON file
+      const fs = await import('fs/promises');
+      const fileContent = await fs.readFile(req.file.path, 'utf8');
+      let words = JSON.parse(fileContent);
+
+      if (!Array.isArray(words)) {
+        words = [words];
+      }
+
+      const wordsToInsert = words.map(row => ({
+        ...row,
+        clues: Array.isArray(row.clues) ? row.clues : [],
+        synonyms: Array.isArray(row.synonyms) ? row.synonyms : [],
+        furtherCharacteristics: Array.isArray(row.furtherCharacteristics) ? row.furtherCharacteristics : [],
+        author: authorId,
+      }));
+
+      const inserted = await Word.insertMany(wordsToInsert);
+      await fs.unlink(req.file.path);
+
+      res.json({ success: true, count: inserted.length });
+    } catch (err) {
+      try {
+        const fs = await import('fs/promises');
+        await fs.unlink(req.file.path);
+      } catch (_) {}
+      res.status(400).json({ success: false, message: err.message });
+    }
+  }
+];
+
+// ================== Existing Functions ==================
 
 export const addWord = async (req, res) => {
     try {
