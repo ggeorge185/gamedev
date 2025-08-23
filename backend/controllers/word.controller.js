@@ -200,12 +200,12 @@ export const updateWord = async (req, res) => {
         }
 
         // Check if user owns this word
-        if (word.author.toString() !== authorId) {
-            return res.status(403).json({
-                message: 'Unauthorized to update this word',
-                success: false
-            });
-        }
+        //if (word.author.toString() !== authorId) {
+        //    return res.status(403).json({
+        //        message: 'Unauthorized to update this word',
+        //        success: false
+        //    });
+        //}
 
         // Parse arrays from string if needed
         const parseArray = (arr) => {
