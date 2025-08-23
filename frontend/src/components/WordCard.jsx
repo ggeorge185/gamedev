@@ -111,7 +111,7 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
                     
-{/*                     {isAuthor && (
+{/*                    {isAuthor && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm">
@@ -133,12 +133,35 @@ const WordCard = ({ word }) => {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    )} */}
+                    )} 
                 </div>
             </CardHeader>
 
             <CardContent className="space-y-4">
                 {/* German Word Section */}
+                    {/* Make edit/delete always visible */}
+                <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                onClick={handleDelete}
+                                disabled={loading}
+                                className="text-red-600"
+                            >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
                 <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <span className="text-sm font-medium text-blue-600">{word.article}</span>
