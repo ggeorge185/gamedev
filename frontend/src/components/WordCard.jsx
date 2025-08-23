@@ -111,7 +111,7 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
                     
-                    {isAuthor && (
+{/*                     {isAuthor && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm">
@@ -133,7 +133,7 @@ const WordCard = ({ word }) => {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    )}
+                    )} */}
                 </div>
             </CardHeader>
 
