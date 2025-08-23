@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -11,7 +11,8 @@ import {
     Globe, 
     MessageSquare,
     Tag,
-    Star
+    Star,
+    X
 } from 'lucide-react';
 import { 
     DropdownMenu, 
@@ -30,20 +31,36 @@ const WordCard = ({ word }) => {
     const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
+    // For editing all fields
     const [formData, setFormData] = useState({
         germanWordSingular: word.germanWordSingular,
         germanWordPlural: word.germanWordPlural || '',
         article: word.article || '',
         englishTranslation: word.englishTranslation || '',
         englishDescription: word.englishDescription || '',
-        jeopardyQuestion: word.jeopardyQuestion || ''
+        jeopardyQuestion: word.jeopardyQuestion || '',
+        topic: word.topic || '',
+        languageLevel: word.languageLevel || '',
+        clues: Array.isArray(word.clues) ? word.clues : [],
+        synonyms: Array.isArray(word.synonyms) ? word.synonyms : [],
+        furtherCharacteristics: Array.isArray(word.furtherCharacteristics) ? word.furtherCharacteristics : [],
     });
+
+    // For image upload
+    const [file, setFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(word.image || "");
+    const [removeImage, setRemoveImage] = useState(false);
+    const imageRef = useRef();
+
+    // For editing array fields
+    const [newClue, setNewClue] = useState('');
+    const [newSynonym, setNewSynonym] = useState('');
+    const [newCharacteristic, setNewCharacteristic] = useState('');
 
     const handleDelete = async () => {
         if (!window.confirm('Are you sure you want to delete this word?')) {
             return;
         }
-
         try {
             setLoading(true);
             const res = await axios.delete(`/api/v1/word/${word._id}`, {
@@ -61,17 +78,63 @@ const WordCard = ({ word }) => {
         }
     };
 
+    // Image handlers
+    const handleImageChange = (e) => {
+        const selectedFile = e.target.files?.[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            const reader = new FileReader();
+            reader.onload = () => setImagePreview(reader.result);
+            reader.readAsDataURL(selectedFile);
+            setRemoveImage(false);
+        }
+    };
+    const handleRemoveImage = () => {
+        setImagePreview("");
+        setFile(null);
+        setRemoveImage(true);
+    };
+
+    // Array field handlers
+    const addToArray = (field, value, setter) => {
+        if (value.trim()) {
+            setFormData(prev => ({
+                ...prev,
+                [field]: [...prev[field], value.trim()]
+            }));
+            setter('');
+        }
+    };
+    const removeFromArray = (field, idx) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: prev[field].filter((_, i) => i !== idx)
+        }));
+    };
+
     const handleEditSave = async () => {
         try {
             setLoading(true);
-            const res = await axios.put(`/api/v1/word/${word._id}`, formData, {
-                withCredentials: true
+            const data = new FormData();
+            Object.entries(formData).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    data.append(key, JSON.stringify(value));
+                } else {
+                    data.append(key, value);
+                }
+            });
+            if (file) data.append('image', file);
+            if (removeImage) data.append('removeImage', 'true');
+
+            const res = await axios.put(`/api/v1/word/${word._id}`, data, {
+                withCredentials: true,
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             if (res.data.success) {
                 toast.success('Word updated successfully');
                 setIsEditing(false);
-                // Reload page or refetch words if needed
+                window.location.reload(); // Or refresh data in parent
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update word');
@@ -108,7 +171,6 @@ const WordCard = ({ word }) => {
                             </p>
                         </div>
                     </div>
-                    {/* Always visible edit/delete menu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">
@@ -134,7 +196,6 @@ const WordCard = ({ word }) => {
             </CardHeader>
 
             <CardContent className="space-y-4">
-                {/* German Word Section */}
                 <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <span className="text-sm font-medium text-blue-600">{word.article}</span>
@@ -146,8 +207,6 @@ const WordCard = ({ word }) => {
                         </p>
                     )}
                 </div>
-
-                {/* Image */}
                 {word.image && (
                     <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
                         <img 
@@ -157,8 +216,6 @@ const WordCard = ({ word }) => {
                         />
                     </div>
                 )}
-
-                {/* Topic and Level */}
                 <div className="flex items-center justify-between">
                     <Badge variant="outline" className="flex items-center gap-1">
                         <Tag className="w-3 h-3" />
@@ -168,8 +225,6 @@ const WordCard = ({ word }) => {
                         {word.languageLevel}
                     </Badge>
                 </div>
-
-                {/* English Translation */}
                 {word.englishTranslation && (
                     <div className="flex items-start gap-2">
                         <Globe className="w-4 h-4 mt-1 text-gray-500" />
@@ -179,8 +234,6 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
                 )}
-
-                {/* English Description */}
                 {word.englishDescription && (
                     <div className="flex items-start gap-2">
                         <BookOpen className="w-4 h-4 mt-1 text-gray-500" />
@@ -190,8 +243,6 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
                 )}
-
-                {/* Jeopardy Question */}
                 {word.jeopardyQuestion && (
                     <div className="flex items-start gap-2">
                         <MessageSquare className="w-4 h-4 mt-1 text-gray-500" />
@@ -201,8 +252,6 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
                 )}
-
-                {/* Clues */}
                 {word.clues && word.clues.length > 0 && (
                     <div>
                         <p className="text-sm font-medium text-gray-700 mb-2">Clues:</p>
@@ -215,8 +264,6 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
                 )}
-
-                {/* Synonyms */}
                 {word.synonyms && word.synonyms.length > 0 && (
                     <div>
                         <p className="text-sm font-medium text-gray-700 mb-2">Synonyms:</p>
@@ -229,8 +276,6 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
                 )}
-
-                {/* Further Characteristics */}
                 {word.furtherCharacteristics && word.furtherCharacteristics.length > 0 && (
                     <div>
                         <p className="text-sm font-medium text-gray-700 mb-2">Characteristics:</p>
@@ -250,9 +295,45 @@ const WordCard = ({ word }) => {
         {/* Edit Modal */}
         {isEditing && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                <div className="bg-white p-6 rounded-lg w-[400px]">
+                <div className="bg-white p-6 rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
                     <h3 className="text-lg font-semibold mb-4">Edit Word</h3>
-                    
+
+                    {/* Image Upload */}
+                    <div className="mb-3">
+                        <label className="block text-sm mb-1">Image</label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-3">
+                            {imagePreview ? (
+                                <div className="relative">
+                                    <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded" />
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        className="absolute top-2 right-2"
+                                        onClick={handleRemoveImage}
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div
+                                    className="text-center cursor-pointer"
+                                    onClick={() => imageRef.current.click()}
+                                >
+                                    <p className="text-gray-500">Click to upload image</p>
+                                </div>
+                            )}
+                            <input
+                                ref={imageRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleImageChange}
+                            />
+                        </div>
+                    </div>
+
+                    {/* All word fields */}
                     <input
                         type="text"
                         value={formData.germanWordSingular}
@@ -260,7 +341,6 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="German Word"
                     />
-                    
                     <input
                         type="text"
                         value={formData.germanWordPlural}
@@ -268,7 +348,6 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="Plural"
                     />
-
                     <input
                         type="text"
                         value={formData.article}
@@ -276,7 +355,20 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="Article (der/die/das)"
                     />
-
+                    <input
+                        type="text"
+                        value={formData.topic}
+                        onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="Topic"
+                    />
+                    <input
+                        type="text"
+                        value={formData.languageLevel}
+                        onChange={(e) => setFormData({ ...formData, languageLevel: e.target.value })}
+                        className="border p-2 w-full mb-3"
+                        placeholder="Language Level (A1, B2, etc)"
+                    />
                     <input
                         type="text"
                         value={formData.englishTranslation}
@@ -284,14 +376,12 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="English Translation"
                     />
-
                     <textarea
                         value={formData.englishDescription}
                         onChange={(e) => setFormData({ ...formData, englishDescription: e.target.value })}
                         className="border p-2 w-full mb-3"
                         placeholder="Description"
                     />
-
                     <textarea
                         value={formData.jeopardyQuestion}
                         onChange={(e) => setFormData({ ...formData, jeopardyQuestion: e.target.value })}
@@ -299,6 +389,72 @@ const WordCard = ({ word }) => {
                         placeholder="Jeopardy Question"
                     />
 
+                    {/* Clues Array Editor */}
+                    <div className="mb-3">
+                        <label className="block text-sm font-medium mb-1">Clues</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {formData.clues.map((clue, idx) => (
+                                <span key={idx} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+                                    {clue}
+                                    <button type="button" className="ml-1 text-red-500" onClick={() => removeFromArray('clues', idx)}><X className="w-3 h-3 inline" /></button>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={newClue}
+                                onChange={e => setNewClue(e.target.value)}
+                                className="border p-1 flex-1 text-xs"
+                                placeholder="Add clue"
+                            />
+                            <Button type="button" size="sm" onClick={() => addToArray('clues', newClue, setNewClue)}>Add</Button>
+                        </div>
+                    </div>
+                    {/* Synonyms Array Editor */}
+                    <div className="mb-3">
+                        <label className="block text-sm font-medium mb-1">Synonyms</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {formData.synonyms.map((synonym, idx) => (
+                                <span key={idx} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+                                    {synonym}
+                                    <button type="button" className="ml-1 text-red-500" onClick={() => removeFromArray('synonyms', idx)}><X className="w-3 h-3 inline" /></button>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={newSynonym}
+                                onChange={e => setNewSynonym(e.target.value)}
+                                className="border p-1 flex-1 text-xs"
+                                placeholder="Add synonym"
+                            />
+                            <Button type="button" size="sm" onClick={() => addToArray('synonyms', newSynonym, setNewSynonym)}>Add</Button>
+                        </div>
+                    </div>
+                    {/* Further Characteristics Array Editor */}
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium mb-1">Characteristics</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {formData.furtherCharacteristics.map((char, idx) => (
+                                <span key={idx} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+                                    {char}
+                                    <button type="button" className="ml-1 text-red-500" onClick={() => removeFromArray('furtherCharacteristics', idx)}><X className="w-3 h-3 inline" /></button>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={newCharacteristic}
+                                onChange={e => setNewCharacteristic(e.target.value)}
+                                className="border p-1 flex-1 text-xs"
+                                placeholder="Add characteristic"
+                            />
+                            <Button type="button" size="sm" onClick={() => addToArray('furtherCharacteristics', newCharacteristic, setNewCharacteristic)}>Add</Button>
+                        </div>
+                    </div>
                     <div className="flex justify-end gap-2">
                         <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
                         <Button onClick={handleEditSave} disabled={loading}>
