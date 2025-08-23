@@ -39,8 +39,6 @@ const WordCard = ({ word }) => {
         jeopardyQuestion: word.jeopardyQuestion || ''
     });
 
-    const isAuthor = user?._id === word.author._id;
-
     const handleDelete = async () => {
         if (!window.confirm('Are you sure you want to delete this word?')) {
             return;
@@ -110,37 +108,8 @@ const WordCard = ({ word }) => {
                             </p>
                         </div>
                     </div>
-                    
-{/*                    {isAuthor && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                    <MoreHorizontal className="w-4 h-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                    onClick={handleDelete}
-                                    disabled={loading}
-                                    className="text-red-600"
-                                >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )} 
-                </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-                {/* German Word Section */}
-                    {/* Make edit/delete always visible */}
-                <DropdownMenu>
+                    {/* Always visible edit/delete menu */}
+                    <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">
                                 <MoreHorizontal className="w-4 h-4" />
@@ -162,6 +131,10 @@ const WordCard = ({ word }) => {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+                {/* German Word Section */}
                 <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <span className="text-sm font-medium text-blue-600">{word.article}</span>
