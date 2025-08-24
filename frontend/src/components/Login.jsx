@@ -63,7 +63,7 @@ const Login = () => {
           <div className='my-4 text-center'>
             <div className='flex items-center justify-center gap-2 mb-4'>
               <BookOpen className='w-8 h-8 text-blue-600' />
-              <h1 className='text-2xl font-bold text-blue-600'>GSerious Game Dashboard</h1>
+              <h1 className='text-2xl font-bold text-blue-600'>Serious Game Dashboard</h1>
             </div>
             <p className='text-sm text-gray-600'>Login to manage your German vocabulary</p>
           </div>
@@ -97,9 +97,9 @@ const Login = () => {
           ) : (
             <Button type='submit' className='bg-blue-600 hover:bg-blue-700'>Login</Button>
           )}
-          <span className='text-center text-sm'>
+{/*           <span className='text-center text-sm'>
             Don't have an account? <Link to='/signup' className='text-blue-600 hover:underline'>Sign up</Link>
-          </span>
+          </span> */}
         </form>
       </div>
     </div>
@@ -107,4 +107,5 @@ const Login = () => {
 };
 
 export default Login;
+
 
