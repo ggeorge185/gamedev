@@ -1,11 +1,10 @@
-# German Word Learning App
+# Serious Game dashboard
 
-A modern web application for building and managing your German vocabulary collection.
+web application for building and managing  German vocabulary collection and setting user mini game options.
 
-## Features
 
 ### Word Management
-- **Add Words**: Comprehensive form with all essential German word information
+- **Add Words**:
   - German Word Singular (required)
   - German Word Plural
   - Article (der, die, das) - required
@@ -19,22 +18,13 @@ A modern web application for building and managing your German vocabulary collec
   - Synonyms (array)
   - Further characteristics (array)
 
-### User Interface
-- **Home**: Browse all German words in a beautiful grid layout
-- **My Words**: Manage your personal vocabulary collection
-- **Search**: Advanced filtering by word, level, topic
-- **Profile**: View user statistics and word collections
-- **Authentication**: Secure login/signup system
+
 
 ### Technical Features
-- **Responsive Design**: Works perfectly on desktop and mobile
 - **Real-time Filtering**: Instant search and filter results
 - **Image Upload**: Cloudinary integration for word images
 - **Modern UI**: Clean, intuitive design with Tailwind CSS
 - **Form Validation**: Comprehensive input validation
-- **Toast Notifications**: User-friendly feedback system
-
-## Tech Stack
 
 ### Frontend
 - **Vite + React**: Fast development and optimized builds
@@ -53,7 +43,6 @@ A modern web application for building and managing your German vocabulary collec
 - **Multer**: File upload handling
 - **bcryptjs**: Password hashing
 
-## Getting Started
 
 ### Prerequisites
 - Node.js (v18 or higher)
