@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const initialData = [
+const LOCAL_STORAGE_KEY = "miniGameTableData";
+
+const defaultData = [
   {
     id: 1,
     title: "Modern Studio Apartment",
@@ -16,7 +18,10 @@ const initialData = [
 ];
 
 export default function MiniGameTable() {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState(() => {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : defaultData;
+  });
   const [newEntry, setNewEntry] = useState({
     title: "",
     location: "",
@@ -25,19 +30,22 @@ export default function MiniGameTable() {
     image: "",
     description: "",
     isScam: false,
-    redFlags: [],
-    greenFlags: [],
+    redFlags: "",
+    greenFlags: "",
   });
-
   const [editIdx, setEditIdx] = useState(null);
+
+  // Persist data to localStorage
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+  }, [data]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setNewEntry({ ...newEntry, [name]: checked });
-    } else {
-      setNewEntry({ ...newEntry, [name]: value });
-    }
+    setNewEntry((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleAdd = (e) => {
@@ -47,10 +55,10 @@ export default function MiniGameTable() {
       {
         ...newEntry,
         id: Date.now(),
-        redFlags: newEntry.redFlags.length
+        redFlags: newEntry.redFlags
           ? newEntry.redFlags.split(",").map((s) => s.trim())
           : [],
-        greenFlags: newEntry.greenFlags.length
+        greenFlags: newEntry.greenFlags
           ? newEntry.greenFlags.split(",").map((s) => s.trim())
           : [],
       },
@@ -63,8 +71,8 @@ export default function MiniGameTable() {
       image: "",
       description: "",
       isScam: false,
-      redFlags: [],
-      greenFlags: [],
+      redFlags: "",
+      greenFlags: "",
     });
   };
 
@@ -86,10 +94,10 @@ export default function MiniGameTable() {
     e.preventDefault();
     const updated = {
       ...newEntry,
-      redFlags: newEntry.redFlags.length
+      redFlags: newEntry.redFlags
         ? newEntry.redFlags.split(",").map((s) => s.trim())
         : [],
-      greenFlags: newEntry.greenFlags.length
+      greenFlags: newEntry.greenFlags
         ? newEntry.greenFlags.split(",").map((s) => s.trim())
         : [],
     };
@@ -105,15 +113,33 @@ export default function MiniGameTable() {
       image: "",
       description: "",
       isScam: false,
-      redFlags: [],
-      greenFlags: [],
+      redFlags: "",
+      greenFlags: "",
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditIdx(null);
+    setNewEntry({
+      title: "",
+      location: "",
+      price: "",
+      deposit: "",
+      image: "",
+      description: "",
+      isScam: false,
+      redFlags: "",
+      greenFlags: "",
     });
   };
 
   return (
     <div style={{ padding: 24 }}>
       <h2>Mini Game Table</h2>
-      <form onSubmit={editIdx === null ? handleAdd : handleUpdate} style={{ marginBottom: 20 }}>
+      <form
+        onSubmit={editIdx === null ? handleAdd : handleUpdate}
+        style={{ marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 8 }}
+      >
         <input
           name="title"
           placeholder="Title"
@@ -153,12 +179,12 @@ export default function MiniGameTable() {
           value={newEntry.description}
           onChange={handleChange}
         />
-        <label>
+        <label style={{ alignSelf: "center" }}>
           Scam?{" "}
           <input
             type="checkbox"
             name="isScam"
-            checked={newEntry.isScam}
+            checked={!!newEntry.isScam}
             onChange={handleChange}
           />
         </label>
@@ -174,25 +200,11 @@ export default function MiniGameTable() {
           value={newEntry.greenFlags}
           onChange={handleChange}
         />
-        <button type="submit">{editIdx === null ? "Add" : "Update"}</button>
+        <button type="submit">
+          {editIdx === null ? "Add" : "Update"}
+        </button>
         {editIdx !== null && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditIdx(null);
-              setNewEntry({
-                title: "",
-                location: "",
-                price: "",
-                deposit: "",
-                image: "",
-                description: "",
-                isScam: false,
-                redFlags: [],
-                greenFlags: [],
-              });
-            }}
-          >
+          <button type="button" onClick={handleCancelEdit}>
             Cancel
           </button>
         )}
