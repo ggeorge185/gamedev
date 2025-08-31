@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-const LOCAL_STORAGE_KEY = "miniGameTableData";
+// CHANGE THIS to your actual Render backend URL:
+const API_URL = "https://gamedev-2jld.onrender.com/api/minigames";
 
+// Default sample data if DB is empty
 const defaultData = [
   {
-    id: 1,
     title: "Modern Studio Apartment",
     location: "Near Otto-von-Guericke University",
     price: "€450/month",
@@ -18,10 +20,7 @@ const defaultData = [
 ];
 
 export default function MiniGameTable() {
-  const [data, setData] = useState(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : defaultData;
-  });
+  const [data, setData] = useState([]);
   const [newEntry, setNewEntry] = useState({
     title: "",
     location: "",
@@ -34,11 +33,23 @@ export default function MiniGameTable() {
     greenFlags: "",
   });
   const [editIdx, setEditIdx] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Persist data to localStorage
+  // Fetch mini games from backend on mount
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
+    axios
+      .get(API_URL)
+      .then((res) => {
+        // If DB empty, optionally seed with defaultData
+        if (res.data.length === 0) setData(defaultData);
+        else setData(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+        alert("Failed to load data from server");
+      });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -48,74 +59,91 @@ export default function MiniGameTable() {
     }));
   };
 
-  const handleAdd = (e) => {
+  // Add a new mini game via backend
+  const handleAdd = async (e) => {
     e.preventDefault();
-    setData([
-      ...data,
-      {
+    try {
+      const payload = {
         ...newEntry,
-        id: Date.now(),
         redFlags: newEntry.redFlags
           ? newEntry.redFlags.split(",").map((s) => s.trim())
           : [],
         greenFlags: newEntry.greenFlags
           ? newEntry.greenFlags.split(",").map((s) => s.trim())
           : [],
-      },
-    ]);
-    setNewEntry({
-      title: "",
-      location: "",
-      price: "",
-      deposit: "",
-      image: "",
-      description: "",
-      isScam: false,
-      redFlags: "",
-      greenFlags: "",
-    });
+      };
+      const res = await axios.post(API_URL, payload);
+      setData((prev) => [...prev, res.data]);
+      setNewEntry({
+        title: "",
+        location: "",
+        price: "",
+        deposit: "",
+        image: "",
+        description: "",
+        isScam: false,
+        redFlags: "",
+        greenFlags: "",
+      });
+    } catch (err) {
+      alert("Failed to add mini game.");
+    }
   };
 
-  const handleDelete = (id) => {
-    setData(data.filter((entry) => entry.id !== id));
+  // Delete mini game from backend
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      setData((prev) => prev.filter((entry) => entry._id !== id));
+    } catch {
+      alert("Failed to delete mini game.");
+    }
   };
 
+  // Edit
   const handleEdit = (idx) => {
     setEditIdx(idx);
     const entry = data[idx];
     setNewEntry({
       ...entry,
-      redFlags: entry.redFlags.join(", "),
-      greenFlags: entry.greenFlags.join(", "),
+      redFlags: entry.redFlags ? entry.redFlags.join(", ") : "",
+      greenFlags: entry.greenFlags ? entry.greenFlags.join(", ") : "",
     });
   };
 
-  const handleUpdate = (e) => {
+  // Update mini game via backend
+  const handleUpdate = async (e) => {
     e.preventDefault();
-    const updated = {
-      ...newEntry,
-      redFlags: newEntry.redFlags
-        ? newEntry.redFlags.split(",").map((s) => s.trim())
-        : [],
-      greenFlags: newEntry.greenFlags
-        ? newEntry.greenFlags.split(",").map((s) => s.trim())
-        : [],
-    };
-    setData(
-      data.map((item, idx) => (idx === editIdx ? { ...item, ...updated } : item))
-    );
-    setEditIdx(null);
-    setNewEntry({
-      title: "",
-      location: "",
-      price: "",
-      deposit: "",
-      image: "",
-      description: "",
-      isScam: false,
-      redFlags: "",
-      greenFlags: "",
-    });
+    const entry = data[editIdx];
+    try {
+      const payload = {
+        ...newEntry,
+        redFlags: newEntry.redFlags
+          ? newEntry.redFlags.split(",").map((s) => s.trim())
+          : [],
+        greenFlags: newEntry.greenFlags
+          ? newEntry.greenFlags.split(",").map((s) => s.trim())
+          : [],
+      };
+      const res = await axios.put(`${API_URL}/${entry._id}`, payload);
+      setData((prev) =>
+        prev.map((item, idx) => (idx === editIdx ? res.data : item))
+      );
+      setEditIdx(null);
+      setNewEntry({
+        title: "",
+        location: "",
+        price: "",
+        deposit: "",
+        image: "",
+        description: "",
+        isScam: false,
+        redFlags: "",
+        greenFlags: "",
+      });
+    } catch {
+      alert("Failed to update mini game.");
+    }
   };
 
   const handleCancelEdit = () => {
@@ -132,6 +160,8 @@ export default function MiniGameTable() {
       greenFlags: "",
     });
   };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div style={{ padding: 24 }}>
@@ -226,7 +256,7 @@ export default function MiniGameTable() {
         </thead>
         <tbody>
           {data.map((entry, idx) => (
-            <tr key={entry.id}>
+            <tr key={entry._id || idx}>
               <td>{entry.title}</td>
               <td>{entry.location}</td>
               <td>{entry.price}</td>
@@ -238,11 +268,25 @@ export default function MiniGameTable() {
               </td>
               <td>{entry.description}</td>
               <td>{entry.isScam ? "Yes" : "No"}</td>
-              <td>{entry.redFlags.join(", ")}</td>
-              <td>{entry.greenFlags.join(", ")}</td>
+              <td>
+                {entry.redFlags && Array.isArray(entry.redFlags)
+                  ? entry.redFlags.join(", ")
+                  : entry.redFlags}
+              </td>
+              <td>
+                {entry.greenFlags && Array.isArray(entry.greenFlags)
+                  ? entry.greenFlags.join(", ")
+                  : entry.greenFlags}
+              </td>
               <td>
                 <button onClick={() => handleEdit(idx)}>Edit</button>
-                <button onClick={() => handleDelete(entry.id)}>Delete</button>
+                <button
+                  onClick={() =>
+                    handleDelete(entry._id)
+                  }
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
