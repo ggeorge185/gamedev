@@ -33,7 +33,7 @@ const browserRouter = createBrowserRouter([
         element: <ProtectedRoutes><MyWords /></ProtectedRoutes>
       },
       {
-        path: '/mini-game-table', // <-- Add this route
+        path: '/mini-game-table', // <-- Mini Game Table added
         element: <ProtectedRoutes><MiniGameTable /></ProtectedRoutes>
       },
     ]
