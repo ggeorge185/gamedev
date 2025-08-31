@@ -4,21 +4,6 @@ import axios from "axios";
 // CHANGE THIS to your actual Render backend URL:
 const API_URL = "https://gamedev-2jld.onrender.com/api/minigames";
 
-// Default sample data if DB is empty
-const defaultData = [
-  {
-    title: "Modern Studio Apartment",
-    location: "Near Otto-von-Guericke University",
-    price: "€450/month",
-    deposit: "€900",
-    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500",
-    description: "Perfect for students. Furnished, Wi-Fi included.",
-    isScam: false,
-    redFlags: [],
-    greenFlags: ["Reasonable deposit", "Near university", "Furnished"],
-  },
-];
-
 export default function MiniGameTable() {
   const [data, setData] = useState([]);
   const [newEntry, setNewEntry] = useState({
