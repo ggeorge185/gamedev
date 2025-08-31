@@ -7,7 +7,7 @@ import userRoute from "./routes/user.route.js";
 import wordRoute from "./routes/word.route.js";
 import path from "path";
 import miniGameRoutes from "./routes/miniGameRoutes.js";
-app.use("/api/minigames", miniGameRoutes);
+app.use("/api/minigame", miniGameRoutes);
 dotenv.config();
 
 const app = express();
@@ -37,5 +37,6 @@ app.listen(PORT, () => {
     connectDB();
     console.log(`Server listen at port ${PORT}`);
 });
+
 
 
