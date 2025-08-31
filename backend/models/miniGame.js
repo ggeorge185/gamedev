@@ -1,30 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const MiniGame = require('../models/miniGame');
+const mongoose = require('mongoose');
 
-// Get all
-router.get('/', async (req, res) => {
-  const games = await MiniGame.find();
-  res.json(games);
+const miniGameSchema = new mongoose.Schema({
+  title: String,
+  location: String,
+  price: String,
+  deposit: String,
+  image: String,
+  description: String,
+  isScam: Boolean,
+  redFlags: [String],
+  greenFlags: [String],
 });
 
-// Add new
-router.post('/', async (req, res) => {
-  const game = new MiniGame(req.body);
-  await game.save();
-  res.json(game);
-});
-
-// Update
-router.put('/:id', async (req, res) => {
-  const game = await MiniGame.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.json(game);
-});
-
-// Delete
-router.delete('/:id', async (req, res) => {
-  await MiniGame.findByIdAndDelete(req.params.id);
-  res.json({ success: true });
-});
-
-module.exports = router;
+module.exports = mongoose.model('MiniGame', miniGameSchema);
