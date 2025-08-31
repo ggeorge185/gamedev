@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const miniGameSchema = new mongoose.Schema({
   title: String,
@@ -10,6 +10,8 @@ const miniGameSchema = new mongoose.Schema({
   isScam: Boolean,
   redFlags: [String],
   greenFlags: [String],
-});
+}, { timestamps: true });
 
-module.exports = mongoose.model('MiniGame', miniGameSchema);
+const MiniGame = mongoose.model('MiniGame', miniGameSchema);
+
+export default MiniGame;
