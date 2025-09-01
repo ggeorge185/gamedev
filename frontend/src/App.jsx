@@ -11,6 +11,10 @@ import GameUserLogin from './components/GameUserLogin'
 import GameUserSignup from './components/GameUserSignup'
 import GameDashboard from './components/GameDashboard'
 import StoryMode from './components/StoryMode'
+import GameSelection from './components/GameSelection'
+import GameTypeManagement from './components/GameTypeManagement'
+import ScenarioConfiguration from './components/ScenarioConfiguration'
+import ScenarioGame from './components/ScenarioGame'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
@@ -41,6 +45,14 @@ const browserRouter = createBrowserRouter([
         path: '/mini-game-table', // <-- Mini Game Table added
         element: <ProtectedRoutes><MiniGameTable /></ProtectedRoutes>
       },
+      {
+        path: '/game-types',
+        element: <ProtectedRoutes><GameTypeManagement /></ProtectedRoutes>
+      },
+      {
+        path: '/scenario-config',
+        element: <ProtectedRoutes><ScenarioConfiguration /></ProtectedRoutes>
+      },
     ]
   },
   {
@@ -67,6 +79,14 @@ const browserRouter = createBrowserRouter([
   {
     path: '/game/story-mode',
     element: <GameProtectedRoutes><StoryMode /></GameProtectedRoutes>
+  },
+  {
+    path: '/game/game-selection',
+    element: <GameProtectedRoutes><GameSelection /></GameProtectedRoutes>
+  },
+  {
+    path: '/game/scenario/:scenarioId',
+    element: <GameProtectedRoutes><ScenarioGame /></GameProtectedRoutes>
   },
 ])
 
