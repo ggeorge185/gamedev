@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authSlice from "./authSlice.js";
 import wordSlice from './wordSlice.js';
+import gameAuthSlice from './gameAuthSlice.js';
 
 import { 
     persistReducer,
@@ -23,6 +24,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
     auth:authSlice,
     word:wordSlice,
+    gameAuth:gameAuthSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

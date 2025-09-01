@@ -7,9 +7,14 @@ import Signup from './components/Signup'
 import SearchPage from './components/SearchPage'
 import MyWords from './components/MyWords'
 import MiniGameTable from './components/MiniGameTable' // <-- Import the new component
+import GameUserLogin from './components/GameUserLogin'
+import GameUserSignup from './components/GameUserSignup'
+import GameDashboard from './components/GameDashboard'
+import StoryMode from './components/StoryMode'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
+import GameProtectedRoutes from './components/GameProtectedRoutes'
 
 const browserRouter = createBrowserRouter([
   {
@@ -45,6 +50,23 @@ const browserRouter = createBrowserRouter([
   {
     path: '/signup',
     element: <Signup />
+  },
+  // Game User Routes
+  {
+    path: '/game-login',
+    element: <GameUserLogin />
+  },
+  {
+    path: '/game-signup',
+    element: <GameUserSignup />
+  },
+  {
+    path: '/game',
+    element: <GameProtectedRoutes><GameDashboard /></GameProtectedRoutes>
+  },
+  {
+    path: '/game/story-mode',
+    element: <GameProtectedRoutes><StoryMode /></GameProtectedRoutes>
   },
 ])
 
