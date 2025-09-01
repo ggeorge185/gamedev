@@ -101,11 +101,11 @@ const GameUserLogin = () => {
           <span className='text-center'>
             Don't have an account? <Link to="/game-signup" className='text-green-600 hover:underline'>Signup</Link>
           </span>
-          <div className='mt-4 text-center'>
-            <Link to="/login" className='text-sm text-gray-500 hover:underline'>
-              Admin Login
-            </Link>
-          </div>
+{/*           <div className='mt-4 text-center'>
+             <Link to="/login" className='text-sm text-gray-500 hover:underline'>
+             Admin Login
+            </Link> 
+          </div> */}
         </form>
       </div>
     </div>
