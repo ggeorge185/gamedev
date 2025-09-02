@@ -97,9 +97,14 @@ const Login = () => {
           ) : (
             <Button type='submit' className='bg-blue-600 hover:bg-blue-700'>Login</Button>
           )}
-{/*           <span className='text-center text-sm'>
+          <span className='text-center text-sm'>
             Don't have an account? <Link to='/signup' className='text-blue-600 hover:underline'>Sign up</Link>
-          </span> */}
+          </span>
+          <div className='mt-4 text-center'>
+            <Link to="/game-login" className='text-sm text-gray-500 hover:underline'>
+              Game User Login
+            </Link>
+          </div>
         </form>
       </div>
     </div>
