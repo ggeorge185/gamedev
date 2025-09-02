@@ -8,7 +8,8 @@ import {
     deleteWord,
     updateWord,
     searchWords,
-    bulkUploadJSON
+    bulkUploadJSON,
+    getTopics
 } from "../controllers/word.controller.js";
 
 const router = express.Router();
@@ -17,6 +18,7 @@ router.route("/add").post(isAuthenticated, upload.single('image'), addWord);
 router.route("/all").get(isAuthenticated, getAllWords);
 router.route("/user").get(isAuthenticated, getUserWords);
 router.route("/search").get(isAuthenticated, searchWords);
+router.route("/topics").get(isAuthenticated, getTopics);
 router.route("/:id").delete(isAuthenticated, deleteWord);
 router.route("/:id").put(isAuthenticated, upload.single('image'), updateWord);
 

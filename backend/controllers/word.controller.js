@@ -341,3 +341,26 @@ export const searchWords = async (req, res) => {
         });
     }
 };
+
+export const getTopics = async (req, res) => {
+    try {
+        const topics = await Word.distinct('topic');
+        
+        // Filter out empty topics and sort alphabetically
+        const filteredTopics = topics
+            .filter(topic => topic && topic.trim())
+            .sort();
+
+        return res.status(200).json({
+            topics: filteredTopics,
+            success: true
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: 'Internal server error',
+            success: false
+        });
+    }
+};

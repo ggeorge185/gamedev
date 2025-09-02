@@ -6,6 +6,8 @@ import Profile from './components/Profile'
 import Signup from './components/Signup'
 import SearchPage from './components/SearchPage'
 import MyWords from './components/MyWords'
+import Games from './components/Games'
+import Scenarios from './components/Scenarios'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
@@ -30,6 +32,14 @@ const browserRouter = createBrowserRouter([
       {
         path: '/my-words',
         element: <ProtectedRoutes><MyWords /></ProtectedRoutes>
+      },
+      {
+        path: '/games',
+        element: <ProtectedRoutes><Games /></ProtectedRoutes>
+      },
+      {
+        path: '/scenarios',
+        element: <ProtectedRoutes><Scenarios /></ProtectedRoutes>
       },
     ]
   },

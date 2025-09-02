@@ -1,4 +1,4 @@
-import { Home, LogOut, PlusSquare, Search, BookOpen, User } from 'lucide-react'
+import { Home, LogOut, PlusSquare, Search, BookOpen, User, GamepadIcon, PlaySquare } from 'lucide-react'
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
@@ -42,6 +42,10 @@ const LeftSidebar = () => {
             navigate("/my-words");
         } else if (textType === 'Search') {
             navigate("/search");
+        } else if (textType === 'Games') {
+            navigate("/games");
+        } else if (textType === 'Scenarios') {
+            navigate("/scenarios");
         }
     }
 
@@ -50,6 +54,8 @@ const LeftSidebar = () => {
         { icon: <Search />, text: "Search" },
         { icon: <PlusSquare />, text: "Add Word" },
         { icon: <BookOpen />, text: "My Words" },
+        { icon: <GamepadIcon />, text: "Games" },
+        { icon: <PlaySquare />, text: "Scenarios" },
         { icon: <LogOut />, text: "Logout" },
     ]
 
