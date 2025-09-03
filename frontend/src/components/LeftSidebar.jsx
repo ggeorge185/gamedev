@@ -1,4 +1,4 @@
-import { Home, LogOut, PlusSquare, Search, BookOpen, User } from 'lucide-react'
+import { Home, LogOut, PlusSquare, Search, BookOpen, User, Table2, Settings } from 'lucide-react'
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
@@ -42,6 +42,12 @@ const LeftSidebar = () => {
             navigate("/my-words");
         } else if (textType === 'Search') {
             navigate("/search");
+        } else if (textType === 'Mini Game Table') {
+            navigate("/mini-game-table");
+        } else if (textType === 'Game Types') {
+            navigate("/game-types");
+        } else if (textType === 'Scenario Config') {
+            navigate("/scenario-config");
         }
     }
 
@@ -50,6 +56,9 @@ const LeftSidebar = () => {
         { icon: <Search />, text: "Search" },
         { icon: <PlusSquare />, text: "Add Word" },
         { icon: <BookOpen />, text: "My Words" },
+        { icon: <Table2 />, text: "Mini Game Table" },
+        { icon: <User />, text: "Game Types" },
+        { icon: <Settings />, text: "Scenario Config" },
         { icon: <LogOut />, text: "Logout" },
     ]
 
@@ -68,7 +77,6 @@ const LeftSidebar = () => {
                     })}
                 </div>
             </div>
-
             <AddWordForm open={open} setOpen={setOpen} />
         </div>
     )

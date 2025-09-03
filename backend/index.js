@@ -5,8 +5,11 @@ import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 import wordRoute from "./routes/word.route.js";
+import gameUserRoute from "./routes/gameUser.route.js";
+import gameRoute from "./routes/game.route.js";
 import path from "path";
- 
+import miniGameRoutes from "./routes/miniGameRoutes.js";
+
 dotenv.config();
 
 const app = express();
@@ -26,6 +29,9 @@ app.use(cors(corsOptions));
 // API routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/word", wordRoute);
+app.use("/api/v1/gameuser", gameUserRoute);
+app.use("/api/v1/game", gameRoute);
+app.use("/api/minigames", miniGameRoutes); // <-- moved to after express() is created
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 app.get("*", (req,res)=>{
@@ -36,4 +42,3 @@ app.listen(PORT, () => {
     connectDB();
     console.log(`Server listen at port ${PORT}`);
 });
-
