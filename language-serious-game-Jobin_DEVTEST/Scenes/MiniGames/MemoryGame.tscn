@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://7db2v5jvkm3q"]
+
+[ext_resource type="Script" uid="uid://bjssvtqpgepjp" path="res://Scenes/MiniGames/memory_game.gd" id="1_sbgg4"]
+
+[node name="MemoryGame" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_sbgg4")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 497.0
+offset_top = 419.0
+offset_right = 505.0
+offset_bottom = 427.0
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 399.0
+offset_top = 28.0
+offset_right = 699.0
+offset_bottom = 328.0
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="TimerLabel" type="Label" parent="."]
+layout_mode = 2
+offset_left = 888.0
+offset_top = 1.0
+offset_right = 961.0
+offset_bottom = 24.0
+rotation = 0.00680262
+text = "Time: __"
+
+[node name="MoveLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+rotation = 0.00183998
+text = "Moves 0/25"
+horizontal_alignment = 1

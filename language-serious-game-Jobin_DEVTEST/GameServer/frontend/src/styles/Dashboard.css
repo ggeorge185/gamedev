@@ -1,0 +1,35 @@
+.dashboard {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: #2c3e50;
+  color: white;
+  padding: 2rem;
+}
+
+.sidebar h2 {
+  margin-bottom: 2rem;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 0;
+  display: block;
+}
+
+.sidebar a:hover {
+  color: #3498db;
+}
+
+.content {
+  padding: 2rem;
+  background: #f5f6fa;
+}
