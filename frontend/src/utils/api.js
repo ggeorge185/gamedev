@@ -47,6 +47,20 @@ export const API_ENDPOINTS = {
         delete: (id) => `${API_BASE_URL}/scenario/${id}`,
         toggleStatus: (id) => `${API_BASE_URL}/scenario/${id}/toggle-status`,
         reorder: `${API_BASE_URL}/scenario/reorder`,
+    },
+    
+    // Scenario Collection endpoints
+    scenarioCollections: {
+        getAll: `${API_BASE_URL}/scenario-collection/all`,
+        getByLevel: (level) => `${API_BASE_URL}/scenario-collection/level/${level}`,
+        getDefaultByLevel: (level) => `${API_BASE_URL}/scenario-collection/level/${level}/default`,
+        getUserCollections: `${API_BASE_URL}/scenario-collection/user`,
+        create: `${API_BASE_URL}/scenario-collection/create`,
+        getById: (id) => `${API_BASE_URL}/scenario-collection/${id}`,
+        update: (id) => `${API_BASE_URL}/scenario-collection/${id}`,
+        delete: (id) => `${API_BASE_URL}/scenario-collection/${id}`,
+        toggleStatus: (id) => `${API_BASE_URL}/scenario-collection/${id}/toggle-status`,
+        setDefault: (id) => `${API_BASE_URL}/scenario-collection/${id}/set-default`,
     }
 };
 

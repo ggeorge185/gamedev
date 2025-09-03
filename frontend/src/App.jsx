@@ -8,6 +8,7 @@ import SearchPage from './components/SearchPage'
 import MyWords from './components/MyWords'
 import Games from './components/Games'
 import Scenarios from './components/Scenarios'
+import ScenarioCollections from './components/ScenarioCollections'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
@@ -40,6 +41,10 @@ const browserRouter = createBrowserRouter([
       {
         path: '/scenarios',
         element: <ProtectedRoutes><Scenarios /></ProtectedRoutes>
+      },
+      {
+        path: '/scenario-collections',
+        element: <ProtectedRoutes><ScenarioCollections /></ProtectedRoutes>
       },
     ]
   },

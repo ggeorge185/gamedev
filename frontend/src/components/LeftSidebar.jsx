@@ -1,4 +1,4 @@
-import { Home, LogOut, PlusSquare, Search, BookOpen, User, GamepadIcon, PlaySquare } from 'lucide-react'
+import { Home, LogOut, PlusSquare, Search, BookOpen, User, GamepadIcon, PlaySquare, Library } from 'lucide-react'
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
@@ -46,6 +46,8 @@ const LeftSidebar = () => {
             navigate("/games");
         } else if (textType === 'Scenarios') {
             navigate("/scenarios");
+        } else if (textType === 'Collections') {
+            navigate("/scenario-collections");
         }
     }
 
@@ -56,13 +58,14 @@ const LeftSidebar = () => {
         { icon: <BookOpen />, text: "My Words" },
         { icon: <GamepadIcon />, text: "Games" },
         { icon: <PlaySquare />, text: "Scenarios" },
+        { icon: <Library />, text: "Collections" },
         { icon: <LogOut />, text: "Logout" },
     ]
 
     return (
         <div className='fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen bg-white'>
             <div className='flex flex-col'>
-                <h1 className='my-8 pl-3 font-bold text-xl text-blue-600'>Serious Game admin board</h1>
+                <h1 className='my-8 pl-3 font-bold text-xl text-blue-600'>Language Game Admin</h1>
                 <div>
                     {sidebarItems.map((item, index) => {
                         return (

@@ -3,6 +3,7 @@ import authSlice from "./authSlice.js";
 import wordSlice from './wordSlice.js';
 import gameSlice from './gameSlice.js';
 import scenarioSlice from './scenarioSlice.js';
+import scenarioCollectionSlice from './scenarioCollectionSlice.js';
 
 import { 
     persistReducer,
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
     word:wordSlice,
     game:gameSlice,
     scenario:scenarioSlice,
+    scenarioCollection:scenarioCollectionSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
