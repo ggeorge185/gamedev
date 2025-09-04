@@ -8,6 +8,7 @@ import ScenarioSelection from './components/ScenarioSelection'
 import JumbledLettersGame from './components/games/JumbledLettersGame'
 import TabooGame from './components/games/TabooGame'
 import QuizGame from './components/games/QuizGame'
+import AccommodationSwipeGame from './components/games/AccommodationSwipeGame'
 import MemoryGame from './components/games/MemoryGame'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -29,6 +30,10 @@ const browserRouter = createBrowserRouter([
   {
     path: "/scenario/:scenarioId",
     element: <ProtectedRoutes><ScenarioSelection /></ProtectedRoutes>
+  },
+  {
+    path: "/game/accommodation-swipe",
+    element: <ProtectedRoutes><AccommodationSwipeGame /></ProtectedRoutes>
   },
   {
     path: "/game/jumbled_letters",

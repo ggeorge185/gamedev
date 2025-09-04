@@ -4,7 +4,8 @@ import {
     getUserProgress,
     updateUserLevel,
     completeGame,
-    unlockScenario
+    unlockScenario,
+    getAccommodations
 } from "../controllers/game.controller.js";
 
 const router = express.Router();
@@ -13,5 +14,6 @@ router.get("/progress", isAuthenticated, getUserProgress);
 router.put("/level", isAuthenticated, updateUserLevel);
 router.post("/complete", isAuthenticated, completeGame);
 router.post("/unlock-scenario", isAuthenticated, unlockScenario);
+router.get("/accommodations", isAuthenticated, getAccommodations);
 
 export default router;

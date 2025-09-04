@@ -73,6 +73,11 @@ const ScenarioSelection = () => {
         navigate(`/game/${gameId}?level=${level}&scenario=${scenarioId}`);
     };
 
+    const handleAccommodationStart = () => {
+        const level = user?.currentLevel || 'A1';
+        navigate(`/game/accommodation-swipe?level=${level}&scenario=${scenarioId}`);
+    };
+
     const isScenarioUnlocked = () => {
         return user?.storyModeProgress?.unlockedScenarios?.includes(scenarioId) || scenarioId === 'accommodation';
     };
@@ -138,44 +143,69 @@ const ScenarioSelection = () => {
                     </div>
                 </div>
 
-                {/* Game Selection */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                        Choose a Game to Practice
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {games.map((game) => (
-                            <div
-                                key={game.id}
-                                className="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
-                                onClick={() => handleGameStart(game.id)}
-                            >
-                                <div className="flex items-center mb-4">
-                                    <div className={`w-12 h-12 ${game.color} rounded-lg flex items-center justify-center text-white text-xl mr-4`}>
-                                        {game.icon}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-800">{game.name}</h3>
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                                            Level: {user?.currentLevel || 'A1'}
+                {/* Game Selection - Special handling for accommodation scenario */}
+                {scenarioId === 'accommodation' ? (
+                    <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                        <div className="mb-8">
+                            <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span className="text-4xl">🏠</span>
+                            </div>
+                            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                                Ready to Help Alex Find Accommodation?
+                            </h2>
+                            <p className="text-gray-600 max-w-md mx-auto">
+                                You'll help Alex swipe through accommodation options and learn to identify good deals from potential scams. 
+                                Pay attention to the details!
+                            </p>
+                        </div>
+                        <Button 
+                            onClick={handleAccommodationStart}
+                            size="lg"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+                        >
+                            <Play className="w-5 h-5 mr-2" />
+                            Start Accommodation Hunt
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+                            Choose a Game to Practice
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {games.map((game) => (
+                                <div
+                                    key={game.id}
+                                    className="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
+                                    onClick={() => handleGameStart(game.id)}
+                                >
+                                    <div className="flex items-center mb-4">
+                                        <div className={`w-12 h-12 ${game.color} rounded-lg flex items-center justify-center text-white text-xl mr-4`}>
+                                            {game.icon}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-800">{game.name}</h3>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                                                Level: {user?.currentLevel || 'A1'}
+                                            </div>
                                         </div>
                                     </div>
+                                    <Button 
+                                        className={`w-full ${game.color} hover:opacity-90 text-white`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleGameStart(game.id);
+                                        }}
+                                    >
+                                        <Play className="w-4 h-4 mr-2" />
+                                        Play {game.name}
+                                    </Button>
                                 </div>
-                                <Button 
-                                    className={`w-full ${game.color} hover:opacity-90 text-white`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleGameStart(game.id);
-                                    }}
-                                >
-                                    <Play className="w-4 h-4 mr-2" />
-                                    Play {game.name}
-                                </Button>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Progress Indicator */}
                 <div className="mt-8 bg-white rounded-lg shadow-md p-6">

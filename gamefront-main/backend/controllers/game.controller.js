@@ -1,4 +1,5 @@
 import { GameUser } from "../models/gameUser.model.js";
+import MiniGame from "../models/miniGame.model.js";
 
 // Get user progress
 export const getUserProgress = async (req, res) => {
@@ -194,6 +195,25 @@ export const unlockScenario = async (req, res) => {
         return res.status(500).json({
             message: "Internal server error",
             success: false
+        });
+    }
+};
+
+// Get accommodation data for swipe game
+export const getAccommodations = async (req, res) => {
+    try {
+        const accommodations = await MiniGame.find({});
+        
+        return res.status(200).json({
+            success: true,
+            accommodations: accommodations
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            accommodations: []
         });
     }
 };
