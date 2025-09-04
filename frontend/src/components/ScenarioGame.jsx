@@ -24,6 +24,15 @@ const ScenarioGame = () => {
         }
       } catch (error) {
         console.error('Error fetching scenario:', error);
+        // For demo purposes, create a mock accommodation scenario if the scenarioId suggests it
+        if (scenarioId.includes('accommodation') || scenarioId.includes('Accommodation')) {
+          setScenario({
+            _id: scenarioId,
+            name: 'Accommodation',
+            description: 'Find suitable housing in Germany',
+            storyContext: 'Alex just arrived in Germany and needs to find a place to live.'
+          });
+        }
       } finally {
         setLoading(false);
       }

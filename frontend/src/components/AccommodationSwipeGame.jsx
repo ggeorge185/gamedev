@@ -25,15 +25,85 @@ const AccommodationSwipeGame = ({ scenarioId, difficulty, onComplete, onBack }) 
         const shuffled = [...response.data].sort(() => Math.random() - 0.5);
         setAccommodations(shuffled);
       } else {
-        // If no data exists, create some sample data
-        toast.info('No accommodation data found. Please add some via the Mini Game Table.');
+        // If no data exists, create some sample data for demo
+        const sampleData = createSampleAccommodations();
+        setAccommodations(sampleData);
+        toast.info('Using sample data. Add real accommodations via the Mini Game Table for more variety.');
       }
     } catch (error) {
       console.error('Error fetching accommodations:', error);
-      toast.error('Failed to load accommodations');
+      // Fallback to sample data
+      const sampleData = createSampleAccommodations();
+      setAccommodations(sampleData);
+      toast.warning('Could not connect to server. Using sample data.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const createSampleAccommodations = () => {
+    return [
+      {
+        _id: 'sample1',
+        title: 'Cozy Studio in City Center',
+        location: 'Munich, Bayern',
+        price: '€1,200/month',
+        deposit: '€2,400',
+        image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
+        description: 'Beautiful studio apartment in the heart of Munich. Fully furnished, close to public transport.',
+        isScam: false,
+        redFlags: [],
+        greenFlags: ['Realistic pricing', 'Detailed description', 'Professional photos', 'Clear contact info']
+      },
+      {
+        _id: 'sample2',
+        title: 'LUXURY PENTHOUSE - ONLY €500!!!',
+        location: 'Munich, Bayern',
+        price: '€500/month',
+        deposit: '€0',
+        image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400',
+        description: 'Amazin luxery apartmnt in center!! Must pay first before seeing!! Very good deal!!!',
+        isScam: true,
+        redFlags: ['Price too low for area', 'Poor grammar/spelling', 'Payment before viewing', 'Excessive exclamation marks'],
+        greenFlags: []
+      },
+      {
+        _id: 'sample3',
+        title: 'Shared Room in WG',
+        location: 'Berlin, Berlin',
+        price: '€650/month',
+        deposit: '€650',
+        image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400',
+        description: 'Room in friendly 3-person WG. Kitchen and bathroom shared. Near U-Bahn station.',
+        isScam: false,
+        redFlags: [],
+        greenFlags: ['Fair pricing', 'Honest description', 'Shared living details', 'Transport mentioned']
+      },
+      {
+        _id: 'sample4',
+        title: 'URGENT RENT - SEND MONEY NOW',
+        location: 'Hamburg, Hamburg',
+        price: '€300/month',
+        deposit: '€600',
+        image: '',
+        description: 'Very nice room available now. Must transfer deposit today or will be gone. No viewings possible.',
+        isScam: true,
+        redFlags: ['Urgent pressure tactics', 'No viewings allowed', 'Immediate money transfer', 'Suspicious urgency'],
+        greenFlags: []
+      },
+      {
+        _id: 'sample5',
+        title: 'Modern 2-Room Apartment',
+        location: 'Frankfurt, Hessen',
+        price: '€1,400/month',
+        deposit: '€2,800',
+        image: 'https://images.unsplash.com/photo-1556020685-ae41abfc9365?w=400',
+        description: 'Well-maintained 2-room apartment in quiet neighborhood. Recently renovated kitchen and bathroom.',
+        isScam: false,
+        redFlags: [],
+        greenFlags: ['Professional listing', 'Detailed amenities', 'Reasonable pricing', 'Specific location details']
+      }
+    ];
   };
 
   const handleSwipe = (isLegitimate) => {
