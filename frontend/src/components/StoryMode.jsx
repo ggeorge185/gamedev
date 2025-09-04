@@ -101,6 +101,16 @@ const StoryMode = () => {
 
                 {/* Scenario Markers */}
                 {scenarios.map((scenario) => {
+                  // Defensive check for mapPosition existence
+                  if (
+                    !scenario.mapPosition ||
+                    typeof scenario.mapPosition.x !== "number" ||
+                    typeof scenario.mapPosition.y !== "number"
+                  ) {
+                    // Optionally log a warning for missing mapPosition
+                    // console.warn("Scenario missing valid mapPosition:", scenario);
+                    return null;
+                  }
                   const isCompleted = isScenarioCompleted(scenario._id);
                   const completionCount = getScenarioCompletionCount(scenario._id);
                   
