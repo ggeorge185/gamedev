@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 import gameRoute from "./routes/game.route.js";
+import adminRoute from "./routes/admin.route.js";
 import { app, server } from "./socket/socket.js";
 import path from "path";
  
@@ -28,6 +29,7 @@ app.use(cors(corsOptions));
 // Game API routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/game", gameRoute);
+app.use("/api/v1/admin", adminRoute);
 
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")));

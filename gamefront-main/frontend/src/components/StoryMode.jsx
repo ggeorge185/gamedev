@@ -104,32 +104,38 @@ const StoryMode = () => {
                         Germany Adventure Map
                     </h2>
                     
-                    <div className="relative bg-gradient-to-br from-green-100 to-blue-200 rounded-lg min-h-96 border-2 border-gray-200">
-                        {/* Decorative map elements */}
-                        <div className="absolute top-4 left-4 text-2xl">🌲</div>
-                        <div className="absolute top-8 right-8 text-2xl">🏔️</div>
-                        <div className="absolute bottom-4 left-8 text-2xl">🌊</div>
-                        <div className="absolute bottom-8 right-4 text-2xl">🌳</div>
+                    <div className="relative bg-gradient-to-br from-green-100 to-blue-200 rounded-lg min-h-96 border-2 border-gray-200 overflow-hidden">
+                        {/* Decorative map elements with animations */}
+                        <div className="absolute top-4 left-4 text-2xl float-animation">🌲</div>
+                        <div className="absolute top-8 right-8 text-2xl float-animation">🏔️</div>
+                        <div className="absolute bottom-4 left-8 text-2xl float-animation">🌊</div>
+                        <div className="absolute bottom-8 right-4 text-2xl float-animation">🌳</div>
+                        
+                        {/* Additional animated background elements */}
+                        <div className="absolute top-12 left-1/3 text-xl opacity-50 bounce-gentle">☁️</div>
+                        <div className="absolute top-20 right-1/3 text-xl opacity-50 bounce-gentle" style={{ animationDelay: '1s' }}>☁️</div>
+                        <div className="absolute bottom-16 left-1/2 text-sm opacity-30 float-animation" style={{ animationDelay: '2s' }}>🦋</div>
                         
                         {/* Scenario Points */}
                         {scenarios.map((scenario, index) => (
                             <div
                                 key={scenario.id}
                                 className={`absolute transform -translate-x-1/2 -translate-y-1/2 ${
-                                    scenario.unlocked ? 'cursor-pointer' : 'cursor-not-allowed'
-                                }`}
+                                    scenario.unlocked ? 'cursor-pointer scenario-unlocked' : 'cursor-not-allowed scenario-locked'
+                                } ${isScenarioCompleted(scenario.id) ? 'scenario-completed' : ''}`}
                                 style={{
                                     top: scenario.position.top,
-                                    left: scenario.position.left
+                                    left: scenario.position.left,
+                                    animationDelay: `${index * 0.3}s`
                                 }}
                                 onClick={() => handleScenarioClick(scenario)}
                             >
                                 <div
                                     className={`relative flex flex-col items-center p-4 rounded-lg transition-all duration-300 ${
                                         scenario.unlocked
-                                            ? 'bg-white shadow-lg hover:shadow-xl hover:scale-105'
+                                            ? 'bg-white shadow-lg hover:shadow-xl hover:scale-105 pulse-glow'
                                             : 'bg-gray-200 opacity-60'
-                                    }`}
+                                    } ${isScenarioCompleted(scenario.id) ? 'bg-green-50 border-2 border-green-300' : ''}`}
                                 >
                                     {/* Status indicator */}
                                     <div className="absolute -top-2 -right-2">
@@ -189,6 +195,24 @@ const StoryMode = () => {
                                 markerEnd="url(#arrowhead)"
                             />
                         </svg>
+                        
+                        {/* Floating progress indicator */}
+                        <div className="absolute bottom-4 right-4 bg-white rounded-lg p-3 shadow-lg border">
+                            <div className="text-sm font-semibold text-gray-700 mb-2">Progress</div>
+                            <div className="flex items-center">
+                                <div className="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div 
+                                        className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                                        style={{ 
+                                            width: `${(scenarios.filter(s => isScenarioCompleted(s.id)).length / scenarios.length) * 100}%` 
+                                        }}
+                                    ></div>
+                                </div>
+                                <span className="text-xs text-gray-600">
+                                    {scenarios.filter(s => isScenarioCompleted(s.id)).length}/{scenarios.length}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

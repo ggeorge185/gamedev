@@ -22,7 +22,7 @@ const gameUserSchema = new mongoose.Schema({
         completedGames: [{
             gameType: {
                 type: String,
-                enum: ['jumbled_letters', 'taboo', 'quiz', 'memory_game']
+                enum: ['jumbled_letters', 'taboo', 'quiz', 'memory_game', 'memory', 'scrabble', 'anagrams']
             },
             score: { type: Number, default: 0 },
             completedAt: { type: Date, default: Date.now }

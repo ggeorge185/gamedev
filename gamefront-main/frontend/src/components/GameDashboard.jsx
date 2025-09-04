@@ -119,6 +119,17 @@ const GameDashboard = () => {
                             </Button>
                         </div>
                     </div>
+
+                    {/* Admin Panel Access (for testing) */}
+                    <div className="mt-8 text-center">
+                        <Button
+                            onClick={() => navigate('/admin')}
+                            variant="outline"
+                            className="text-sm"
+                        >
+                            🔧 Admin Panel (Configure Games)
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

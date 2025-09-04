@@ -1,14 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Button } from './ui/button';
 import { ArrowLeft, Play, Star } from 'lucide-react';
+import axios from 'axios';
 
 const ScenarioSelection = () => {
     const navigate = useNavigate();
     const { scenarioId } = useParams();
     const [searchParams] = useSearchParams();
     const { user } = useSelector((store) => store.auth);
+    const [availableGames, setAvailableGames] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchAvailableGames();
+    }, [scenarioId, user?.currentLevel]);
+
+    const fetchAvailableGames = async () => {
+        try {
+            const level = user?.currentLevel || 'A1';
+            const response = await axios.get(
+                `/api/v1/admin/games/${scenarioId}/${level}`,
+                {
+                    withCredentials: true
+                }
+            );
+            
+            if (response.data.success) {
+                setAvailableGames(response.data.availableGames);
+            }
+        } catch (error) {
+            console.error('Error fetching available games:', error);
+            // Set default games as fallback
+            setAvailableGames([
+                { gameType: 'memory', isActive: true, maxScore: 100, timeLimit: 10 },
+                { gameType: 'scrabble', isActive: true, maxScore: 100, timeLimit: 15 },
+                { gameType: 'anagrams', isActive: true, maxScore: 100, timeLimit: 8 }
+            ]);
+        } finally {
+            setLoading(false);
+        }
+    };
     
     const scenarios = {
         accommodation: {
@@ -48,12 +81,18 @@ const ScenarioSelection = () => {
         }
     };
 
-    const games = [
-        { id: 'jumbled_letters', name: 'Jumbled Letters', icon: '🔤', color: 'bg-purple-500' },
-        { id: 'taboo', name: 'Taboo', icon: '🎯', color: 'bg-red-500' },
-        { id: 'quiz', name: 'Quiz Challenge', icon: '❓', color: 'bg-blue-500' },
-        { id: 'memory_game', name: 'Memory Game', icon: '🧠', color: 'bg-green-500' }
-    ];
+    const getGameDisplayInfo = (gameType) => {
+        const gameInfo = {
+            memory: { name: 'Memory Game', icon: '🧠', color: 'bg-blue-500' },
+            scrabble: { name: 'Scrabble Game', icon: '🔠', color: 'bg-green-500' },
+            anagrams: { name: 'Anagrams', icon: '🔤', color: 'bg-purple-500' },
+            quiz: { name: 'Quiz Challenge', icon: '❓', color: 'bg-yellow-500' },
+            taboo: { name: 'Taboo Game', icon: '🚫', color: 'bg-red-500' },
+            jumbled_letters: { name: 'Jumbled Letters', icon: '🔤', color: 'bg-indigo-500' },
+            memory_game: { name: 'Memory Game', icon: '🧠', color: 'bg-green-500' }
+        };
+        return gameInfo[gameType] || { name: gameType, icon: '🎮', color: 'bg-gray-500' };
+    };
 
     const scenario = scenarios[scenarioId];
     
@@ -68,9 +107,9 @@ const ScenarioSelection = () => {
         );
     }
 
-    const handleGameStart = (gameId) => {
+    const handleGameStart = (gameType) => {
         const level = user?.currentLevel || 'A1';
-        navigate(`/game/${gameId}?level=${level}&scenario=${scenarioId}`);
+        navigate(`/game/${gameType}?level=${level}&scenario=${scenarioId}`);
     };
 
     const isScenarioUnlocked = () => {
@@ -143,38 +182,51 @@ const ScenarioSelection = () => {
                     <h2 className="text-xl font-semibold text-gray-800 mb-6">
                         Choose a Game to Practice
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {games.map((game) => (
-                            <div
-                                key={game.id}
-                                className="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
-                                onClick={() => handleGameStart(game.id)}
-                            >
-                                <div className="flex items-center mb-4">
-                                    <div className={`w-12 h-12 ${game.color} rounded-lg flex items-center justify-center text-white text-xl mr-4`}>
-                                        {game.icon}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-800">{game.name}</h3>
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                                            Level: {user?.currentLevel || 'A1'}
+                    {loading ? (
+                        <div className="text-center py-8">
+                            <div className="text-2xl">Loading available games...</div>
+                        </div>
+                    ) : availableGames.length === 0 ? (
+                        <div className="text-center py-8">
+                            <p className="text-gray-600">No games available for this scenario and level.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {availableGames.map((game) => {
+                                const gameInfo = getGameDisplayInfo(game.gameType);
+                                return (
+                                    <div
+                                        key={game.gameType}
+                                        className="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
+                                        onClick={() => handleGameStart(game.gameType)}
+                                    >
+                                        <div className="flex items-center mb-4">
+                                            <div className={`w-12 h-12 ${gameInfo.color} rounded-lg flex items-center justify-center text-white text-xl mr-4`}>
+                                                {gameInfo.icon}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-800">{gameInfo.name}</h3>
+                                                <div className="flex items-center text-sm text-gray-600">
+                                                    <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                                                    Max Score: {game.maxScore} | Time: {game.timeLimit}min
+                                                </div>
+                                            </div>
                                         </div>
+                                        <Button 
+                                            className={`w-full ${gameInfo.color} hover:opacity-90 text-white`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleGameStart(game.gameType);
+                                            }}
+                                        >
+                                            <Play className="w-4 h-4 mr-2" />
+                                            Play {gameInfo.name}
+                                        </Button>
                                     </div>
-                                </div>
-                                <Button 
-                                    className={`w-full ${game.color} hover:opacity-90 text-white`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleGameStart(game.id);
-                                    }}
-                                >
-                                    <Play className="w-4 h-4 mr-2" />
-                                    Play {game.name}
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
 
                 {/* Progress Indicator */}
