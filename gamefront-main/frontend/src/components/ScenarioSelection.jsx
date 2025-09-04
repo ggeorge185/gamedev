@@ -96,6 +96,48 @@ const ScenarioSelection = () => {
         );
     }
 
+    // Special view for accommodation scenario - blank page with start button
+    if (scenarioId === 'accommodation') {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 p-8">
+                <div className="max-w-4xl mx-auto">
+                    {/* Header */}
+                    <div className="flex items-center mb-8">
+                        <Button
+                            variant="ghost"
+                            onClick={() => navigate('/story-mode')}
+                            className="mr-4"
+                        >
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Back to Story Mode
+                        </Button>
+                    </div>
+
+                    {/* Main content - blank page with start button */}
+                    <div className="min-h-96 flex items-center justify-center">
+                        <div className="text-center bg-white rounded-lg shadow-lg p-12">
+                            <div className="text-6xl mb-6">🏠</div>
+                            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                                Finding Accommodation
+                            </h1>
+                            <p className="text-xl text-gray-600 mb-8">
+                                Help Alex find the perfect place to live in Germany
+                            </p>
+                            <Button 
+                                onClick={() => navigate(`/game/accommodation-swipe?scenario=${scenarioId}`)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-xl"
+                                size="lg"
+                            >
+                                <Play className="w-6 h-6 mr-3" />
+                                Start Game
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 p-8">
             <div className="max-w-4xl mx-auto">

@@ -9,6 +9,7 @@ import JumbledLettersGame from './components/games/JumbledLettersGame'
 import TabooGame from './components/games/TabooGame'
 import QuizGame from './components/games/QuizGame'
 import MemoryGame from './components/games/MemoryGame'
+import AccommodationSwipeGame from './components/games/AccommodationSwipeGame'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
@@ -45,6 +46,10 @@ const browserRouter = createBrowserRouter([
   {
     path: "/game/memory_game",
     element: <ProtectedRoutes><MemoryGame /></ProtectedRoutes>
+  },
+  {
+    path: "/game/accommodation-swipe",
+    element: <ProtectedRoutes><AccommodationSwipeGame /></ProtectedRoutes>
   },
   {
     path: '/login',
