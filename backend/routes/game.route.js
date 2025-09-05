@@ -6,6 +6,7 @@ import {
     updateScenario,
     getAllGameTypes, 
     createGameType,
+    updateGameType,
     getScenarioConfigs,
     createScenarioConfig,
     updateScenarioConfig
@@ -25,6 +26,7 @@ router.route('/scenario-configs').get(getScenarioConfigs);
 router.route('/admin/scenarios').post(isAuthenticated, createScenario);
 router.route('/admin/scenarios/:scenarioId').put(isAuthenticated, updateScenario);
 router.route('/admin/game-types').post(isAuthenticated, createGameType);
+router.route('/admin/game-types/:gameTypeId').put(isAuthenticated, updateGameType);
 router.route('/admin/scenario-configs').post(isAuthenticated, createScenarioConfig);
 router.route('/admin/scenario-configs/:configId').put(isAuthenticated, updateScenarioConfig);
 

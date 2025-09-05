@@ -18,7 +18,7 @@ const GameTypeManagement = () => {
     isActive: true
   });
 
-  const gameTypeOptions = ['Taboo', 'Memory Game', 'Scrabble', 'Quiz'];
+  const gameTypeOptions = ['Taboo', 'Memory Game', 'Scrabble', 'Quiz', 'Anagram'];
 
   useEffect(() => {
     loadGameTypes();
