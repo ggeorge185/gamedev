@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
@@ -40,16 +40,40 @@ const StoryMode = () => {
     return gameUser?.completedScenarios?.filter(cs => cs.scenarioId === scenarioId).length || 0;
   };
 
+  const isScenarioUnlocked = (scenario) => {
+    // First scenario (order 1) is always unlocked
+    if (scenario.order === 1) {
+      return true;
+    }
+    
+    // Sort scenarios by order and check if previous scenario is completed
+    const sortedScenarios = [...scenarios].sort((a, b) => a.order - b.order);
+    const currentIndex = sortedScenarios.findIndex(s => s._id === scenario._id);
+    
+    if (currentIndex === 0) {
+      return true; // First scenario is always unlocked
+    }
+    
+    // Check if previous scenario is completed
+    const previousScenario = sortedScenarios[currentIndex - 1];
+    return isScenarioCompleted(previousScenario._id);
+  };
+
   const handleScenarioClick = (scenario) => {
-    setSelectedScenario(scenario);
-    setSelectedDifficulty(scenario.availableLevels[0] || 'A1');
+    // Only allow clicking if scenario is unlocked
+    if (isScenarioUnlocked(scenario)) {
+      setSelectedScenario(scenario);
+      setSelectedDifficulty(scenario.availableLevels[0] || 'A1');
+    }
   };
 
   const startScenario = () => {
-    if (selectedScenario && selectedDifficulty) {
+    if (selectedScenario && selectedDifficulty && isScenarioUnlocked(selectedScenario)) {
       navigate(`/game/scenario/${selectedScenario._id}`, {
         state: { difficulty: selectedDifficulty }
       });
+    } else if (selectedScenario && !isScenarioUnlocked(selectedScenario)) {
+      toast.error('Complete the previous scenario first to unlock this one!');
     }
   };
 
@@ -107,18 +131,20 @@ const StoryMode = () => {
                     typeof scenario.mapPosition.x !== "number" ||
                     typeof scenario.mapPosition.y !== "number"
                   ) {
-                    // Optionally log a warning for missing mapPosition
-                    // console.warn("Scenario missing valid mapPosition:", scenario);
                     return null;
                   }
                   const isCompleted = isScenarioCompleted(scenario._id);
+                  const isUnlocked = isScenarioUnlocked(scenario);
                   const completionCount = getScenarioCompletionCount(scenario._id);
                   
                   return (
                     <button
                       key={scenario._id}
                       onClick={() => handleScenarioClick(scenario)}
-                      className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 hover:scale-110 ${
+                      disabled={!isUnlocked}
+                      className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ${
+                        isUnlocked ? 'hover:scale-110 cursor-pointer' : 'cursor-not-allowed'
+                      } ${
                         selectedScenario?._id === scenario._id ? 'z-20' : 'z-10'
                       }`}
                       style={{
@@ -128,7 +154,9 @@ const StoryMode = () => {
                     >
                       <div className="relative">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
-                          isCompleted 
+                          !isUnlocked
+                            ? 'bg-gray-400 text-gray-600'
+                            : isCompleted 
                             ? 'bg-green-500 text-white' 
                             : 'bg-blue-500 text-white hover:bg-blue-600'
                         } ${
@@ -136,7 +164,9 @@ const StoryMode = () => {
                             ? 'ring-4 ring-yellow-400' 
                             : ''
                         }`}>
-                          {isCompleted ? (
+                          {!isUnlocked ? (
+                            <Lock className="w-6 h-6" />
+                          ) : isCompleted ? (
                             <CheckCircle className="w-6 h-6" />
                           ) : (
                             <MapPin className="w-6 h-6" />
@@ -144,14 +174,18 @@ const StoryMode = () => {
                         </div>
                         
                         {/* Completion stars */}
-                        {completionCount > 0 && (
+                        {isUnlocked && completionCount > 0 && (
                           <div className="absolute -top-2 -right-2 bg-yellow-400 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-yellow-900">
                             {completionCount}
                           </div>
                         )}
                         
                         {/* Scenario name */}
-                        <div className="absolute top-14 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow text-xs font-medium text-gray-800 whitespace-nowrap">
+                        <div className={`absolute top-14 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded shadow text-xs font-medium whitespace-nowrap ${
+                          !isUnlocked 
+                            ? 'bg-gray-200 text-gray-500' 
+                            : 'bg-white text-gray-800'
+                        }`}>
                           {scenario.name}
                         </div>
                       </div>
@@ -169,6 +203,12 @@ const StoryMode = () => {
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-green-500 rounded-full"></div>
                   <span>Completed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
+                    <Lock className="w-3 h-3 text-gray-600" />
+                  </div>
+                  <span>Locked</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs">
@@ -190,15 +230,26 @@ const StoryMode = () => {
                 
                 <div className="mb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    {isScenarioCompleted(selectedScenario._id) ? (
+                    {!isScenarioUnlocked(selectedScenario) ? (
+                      <Lock className="w-5 h-5 text-gray-400" />
+                    ) : isScenarioCompleted(selectedScenario._id) ? (
                       <CheckCircle className="w-5 h-5 text-green-500" />
                     ) : (
                       <MapPin className="w-5 h-5 text-blue-500" />
                     )}
                     <span className="font-medium">
-                      {isScenarioCompleted(selectedScenario._id) ? 'Completed' : 'Available'}
+                      {!isScenarioUnlocked(selectedScenario) 
+                        ? 'Locked' 
+                        : isScenarioCompleted(selectedScenario._id) 
+                        ? 'Completed' 
+                        : 'Available'}
                     </span>
                   </div>
+                  {!isScenarioUnlocked(selectedScenario) && (
+                    <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+                      Complete the previous scenario to unlock this one!
+                    </div>
+                  )}
                   <p className="text-gray-600 text-sm">
                     {selectedScenario.description}
                   </p>
@@ -238,10 +289,15 @@ const StoryMode = () => {
 
                 <Button
                   onClick={startScenario}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  disabled={!isScenarioUnlocked(selectedScenario)}
+                  className={`w-full ${
+                    isScenarioUnlocked(selectedScenario)
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-gray-400 cursor-not-allowed'
+                  }`}
                   size="lg"
                 >
-                  Start Scenario
+                  {isScenarioUnlocked(selectedScenario) ? 'Start Scenario' : 'Locked'}
                 </Button>
 
                 {/* Completion Stats */}

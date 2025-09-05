@@ -19,7 +19,7 @@ const seedData = async () => {
         // Create scenarios
         const scenarios = await Scenario.insertMany([
             {
-                name: 'Accommodation',
+                name: 'Finding Accommodation',
                 description: 'Find suitable housing in Germany',
                 order: 1,
                 mapPosition: { x: 20, y: 30 },
@@ -37,7 +37,7 @@ const seedData = async () => {
                 isRequired: true
             },
             {
-                name: 'University',
+                name: 'University related',
                 description: 'Enroll in university and navigate academic life',
                 order: 3,
                 mapPosition: { x: 80, y: 40 },
@@ -55,11 +55,11 @@ const seedData = async () => {
                 isRequired: true
             },
             {
-                name: 'Everyday Items',
-                description: 'Shop for daily necessities and learn everyday vocabulary',
+                name: 'Medical Insurance',
+                description: 'Get health insurance and understand medical system',
                 order: 5,
                 mapPosition: { x: 70, y: 80 },
-                storyContext: 'Alex needs to buy everyday items and learn essential vocabulary for shopping, groceries, and daily life in Germany.',
+                storyContext: 'Alex needs to get health insurance and learn about the German medical system and healthcare vocabulary.',
                 availableLevels: ['A1', 'A2', 'B1', 'B2'],
                 isRequired: true
             }
