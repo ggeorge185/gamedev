@@ -7,11 +7,11 @@ import { updateGameUserProgress } from '@/redux/gameAuthSlice';
 import { toast } from 'sonner';
 import AccommodationGame from './accommodation_game.jsx';
 // Import new game components
-import AnagramGameContainer from './games/anagram_game_container.js';
-import MemoryGameContainer from './games/memory_game_container.js';
-import TabooGameContainer from './games/taboo-game-container.js';
-import QuizGameContainer from './games/quiz_game_container.js';
-import ScrabbleGameContainer from './games/scrabble-game-container.js';
+import AnagramGameContainer from './games/anagram_game_container.jsx';
+import MemoryGameContainer from './games/memory_game_container.jsx';
+import TabooGameContainer from './games/taboo-game-container.jsx';
+import QuizGameContainer from './games/quiz_game_container.jsx';
+import ScrabbleGameContainer from './games/scrabble-game-container.jsx';
 import axios from 'axios';
 
 const ScenarioGame = () => {

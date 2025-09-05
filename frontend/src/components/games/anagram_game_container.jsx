@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import ScrabbleGame from './scrabble_game.js';
+import AnagramGame from './anagram-game.jsx';
 import axios from 'axios';
 import { toast } from 'sonner';
 
-const ScrabbleGameContainer = ({ scenario, difficulty, instructions, onGameComplete }) => {
+const AnagramGameContainer = ({ scenario, difficulty, instructions, onGameComplete }) => {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,13 +18,14 @@ const ScrabbleGameContainer = ({ scenario, difficulty, instructions, onGameCompl
         params: {
           level: difficulty,
           topic: scenario?.name || '',
-          limit: 20
+          limit: 10
         }
       });
       
       if (res.data.success && res.data.words) {
         setWords(res.data.words);
       } else {
+        // Fallback to default words if no specific words found
         setWords([]);
         toast.info('Using default word set for this scenario');
       }
@@ -40,13 +41,13 @@ const ScrabbleGameContainer = ({ scenario, difficulty, instructions, onGameCompl
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-lg text-gray-600">Loading scrabble game...</div>
+        <div className="text-lg text-gray-600">Loading anagram game...</div>
       </div>
     );
   }
 
   return (
-    <ScrabbleGame
+    <AnagramGame
       scenario={scenario}
       difficulty={difficulty}
       instructions={instructions}
@@ -56,4 +57,4 @@ const ScrabbleGameContainer = ({ scenario, difficulty, instructions, onGameCompl
   );
 };
 
-export default ScrabbleGameContainer;
+export default AnagramGameContainer;
