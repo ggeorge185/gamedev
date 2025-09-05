@@ -11,6 +11,7 @@ import GameUserLogin from './components/GameUserLogin'
 import GameUserSignup from './components/GameUserSignup'
 import GameDashboard from './components/GameDashboard'
 import StoryMode from './components/StoryMode'
+import StoryModeDemo from './components/StoryModeDemo'
 import GameSelection from './components/GameSelection'
 import GameTypeManagement from './components/GameTypeManagement'
 import ScenarioConfiguration from './components/ScenarioConfiguration'
@@ -87,6 +88,10 @@ const browserRouter = createBrowserRouter([
   {
     path: '/game/scenario/:scenarioId',
     element: <GameProtectedRoutes><ScenarioGame /></GameProtectedRoutes>
+  },
+  {
+    path: '/demo/story-mode',
+    element: <StoryModeDemo />
   },
 ])
 
