@@ -2,6 +2,7 @@ import express from "express";
 import { 
     getAllScenarios, 
     createScenario, 
+    updateScenario,
     getAllGameTypes, 
     createGameType,
     getScenarioConfigs,
@@ -20,6 +21,7 @@ router.route('/scenario-configs').get(getScenarioConfigs);
 
 // Admin-only routes (use admin authentication)
 router.route('/admin/scenarios').post(isAuthenticated, createScenario);
+router.route('/admin/scenarios/:scenarioId').put(isAuthenticated, updateScenario);
 router.route('/admin/game-types').post(isAuthenticated, createGameType);
 router.route('/admin/scenario-configs').post(isAuthenticated, createScenarioConfig);
 router.route('/admin/scenario-configs/:configId').put(isAuthenticated, updateScenarioConfig);

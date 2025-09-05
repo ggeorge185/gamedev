@@ -126,7 +126,7 @@ export const getScenarioConfigs = async (req, res) => {
 
 export const createScenarioConfig = async (req, res) => {
     try {
-        const { scenarioId, gameTypeId, difficultyLevel, gameConfig, isActive } = req.body;
+        const { scenarioId, gameTypeId, difficultyLevel, gameConfig, instructions, isActive } = req.body;
         
         if (!scenarioId || !gameTypeId || !difficultyLevel) {
             return res.status(400).json({
@@ -140,6 +140,7 @@ export const createScenarioConfig = async (req, res) => {
             gameType: gameTypeId,
             difficultyLevel,
             gameConfig: gameConfig || {},
+            instructions: instructions || '',
             isActive: isActive !== undefined ? isActive : true
         });
         
@@ -162,13 +163,14 @@ export const createScenarioConfig = async (req, res) => {
 export const updateScenarioConfig = async (req, res) => {
     try {
         const { configId } = req.params;
-        const { gameTypeId, gameConfig, isActive } = req.body;
+        const { gameTypeId, gameConfig, instructions, isActive } = req.body;
         
         const config = await ScenarioConfig.findByIdAndUpdate(
             configId,
             {
                 ...(gameTypeId && { gameType: gameTypeId }),
                 ...(gameConfig && { gameConfig }),
+                ...(instructions !== undefined && { instructions }),
                 ...(isActive !== undefined && { isActive })
             },
             { new: true }
@@ -184,6 +186,45 @@ export const updateScenarioConfig = async (req, res) => {
         return res.status(200).json({
             message: "Scenario configuration updated successfully",
             config,
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+        });
+    }
+};
+
+export const updateScenario = async (req, res) => {
+    try {
+        const { scenarioId } = req.params;
+        const { name, description, mapPosition, storyContext, availableLevels, isRequired } = req.body;
+        
+        const scenario = await Scenario.findByIdAndUpdate(
+            scenarioId,
+            {
+                ...(name && { name }),
+                ...(description && { description }),
+                ...(mapPosition && { mapPosition }),
+                ...(storyContext && { storyContext }),
+                ...(availableLevels && { availableLevels }),
+                ...(isRequired !== undefined && { isRequired })
+            },
+            { new: true }
+        );
+        
+        if (!scenario) {
+            return res.status(404).json({
+                message: "Scenario not found",
+                success: false,
+            });
+        }
+        
+        return res.status(200).json({
+            message: "Scenario updated successfully",
+            scenario,
             success: true
         });
     } catch (error) {

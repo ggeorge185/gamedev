@@ -21,6 +21,11 @@ const scenarioConfigSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,
         default: {}
     },
+    // Instructions for players when they start this scenario/difficulty
+    instructions: {
+        type: String,
+        default: ''
+    },
     // Whether this configuration is active
     isActive: {
         type: Boolean,
