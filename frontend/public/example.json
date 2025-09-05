@@ -1,0 +1,28 @@
+[
+  {
+    "germanWordSingular": "Hund",
+    "germanWordPlural": "Hunde",
+    "article": "der",
+    "topic": "Tiere",
+    "languageLevel": "A1",
+    "englishTranslation": "dog",
+    "englishDescription": "A domesticated carnivorous mammal",
+    "jeopardyQuestion": "What animal barks?",
+    "clues": ["barks", "pet"],
+    "synonyms": ["dog", "canine"],
+    "furtherCharacteristics": ["furry", "four-legged"]
+  },
+  {
+    "germanWordSingular": "Katze",
+    "germanWordPlural": "Katzen",
+    "article": "die",
+    "topic": "Tiere",
+    "languageLevel": "A1",
+    "englishTranslation": "cat",
+    "englishDescription": "A small domesticated carnivorous mammal",
+    "jeopardyQuestion": "What animal meows?",
+    "clues": ["meows", "pet"],
+    "synonyms": ["cat", "feline"],
+    "furtherCharacteristics": ["furry", "four-legged"]
+  }
+]
