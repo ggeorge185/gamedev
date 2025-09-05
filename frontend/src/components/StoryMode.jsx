@@ -101,6 +101,14 @@ const StoryMode = () => {
 
                 {/* Scenario Markers */}
                 {scenarios.map((scenario) => {
+                  // Defensive: skip if no mapPosition or missing x/y
+                  if (
+                    !scenario.mapPosition ||
+                    typeof scenario.mapPosition.x !== "number" ||
+                    typeof scenario.mapPosition.y !== "number"
+                  ) {
+                    return null;
+                  }
                   const isCompleted = isScenarioCompleted(scenario._id);
                   const completionCount = getScenarioCompletionCount(scenario._id);
                   
@@ -112,8 +120,8 @@ const StoryMode = () => {
                         selectedScenario?._id === scenario._id ? 'z-20' : 'z-10'
                       }`}
                       style={{
-                        left: `${scenario.mapPosition.x}%`,
-                        top: `${scenario.mapPosition.y}%`,
+                        left: `${scenario.mapPosition?.x ?? 50}%`,
+                        top: `${scenario.mapPosition?.y ?? 50}%`,
                       }}
                     >
                       <div className="relative">
