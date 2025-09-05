@@ -333,7 +333,12 @@ const WordCard = ({ word }) => {
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     {/* All word fields */}
+=======
+                    {/* All word fields, now with field names */}
+                    <label className="block text-sm font-medium mb-1">German Word</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <input
                         type="text"
                         value={formData.germanWordSingular}
@@ -341,6 +346,11 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="German Word"
                     />
+<<<<<<< HEAD
+=======
+
+                    <label className="block text-sm font-medium mb-1">Plural</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <input
                         type="text"
                         value={formData.germanWordPlural}
@@ -348,6 +358,11 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="Plural"
                     />
+<<<<<<< HEAD
+=======
+
+                    <label className="block text-sm font-medium mb-1">Article (der/die/das)</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <input
                         type="text"
                         value={formData.article}
@@ -355,6 +370,11 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="Article (der/die/das)"
                     />
+<<<<<<< HEAD
+=======
+
+                    <label className="block text-sm font-medium mb-1">Topic</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <input
                         type="text"
                         value={formData.topic}
@@ -362,6 +382,11 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="Topic"
                     />
+<<<<<<< HEAD
+=======
+
+                    <label className="block text-sm font-medium mb-1">Language Level (A1, B2, etc)</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <input
                         type="text"
                         value={formData.languageLevel}
@@ -369,6 +394,11 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="Language Level (A1, B2, etc)"
                     />
+<<<<<<< HEAD
+=======
+
+                    <label className="block text-sm font-medium mb-1">English Translation</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <input
                         type="text"
                         value={formData.englishTranslation}
@@ -376,12 +406,22 @@ const WordCard = ({ word }) => {
                         className="border p-2 w-full mb-3"
                         placeholder="English Translation"
                     />
+<<<<<<< HEAD
+=======
+
+                    <label className="block text-sm font-medium mb-1">Description</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <textarea
                         value={formData.englishDescription}
                         onChange={(e) => setFormData({ ...formData, englishDescription: e.target.value })}
                         className="border p-2 w-full mb-3"
                         placeholder="Description"
                     />
+<<<<<<< HEAD
+=======
+
+                    <label className="block text-sm font-medium mb-1">Jeopardy Question</label>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
                     <textarea
                         value={formData.jeopardyQuestion}
                         onChange={(e) => setFormData({ ...formData, jeopardyQuestion: e.target.value })}

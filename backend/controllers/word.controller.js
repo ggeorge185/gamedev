@@ -341,6 +341,7 @@ export const searchWords = async (req, res) => {
         });
     }
 };
+<<<<<<< HEAD
 
 export const getTopics = async (req, res) => {
     try {
@@ -364,3 +365,5 @@ export const getTopics = async (req, res) => {
         });
     }
 };
+=======
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e

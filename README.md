@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Serious Game dashboard
 
 web application for building and managing  German vocabulary collection and setting user mini game options.
@@ -5,6 +6,16 @@ web application for building and managing  German vocabulary collection and sett
 
 ### Word Management
 - **Add Words**:
+=======
+# German Word Learning App
+
+A modern web application for building and managing your German vocabulary collection.
+
+## Features
+
+### Word Management
+- **Add Words**: Comprehensive form with all essential German word information
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
   - German Word Singular (required)
   - German Word Plural
   - Article (der, die, das) - required
@@ -18,13 +29,31 @@ web application for building and managing  German vocabulary collection and sett
   - Synonyms (array)
   - Further characteristics (array)
 
+<<<<<<< HEAD
 
 
 ### Technical Features
+=======
+### User Interface
+- **Home**: Browse all German words in a beautiful grid layout
+- **My Words**: Manage your personal vocabulary collection
+- **Search**: Advanced filtering by word, level, topic
+- **Profile**: View user statistics and word collections
+- **Authentication**: Secure login/signup system
+
+### Technical Features
+- **Responsive Design**: Works perfectly on desktop and mobile
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
 - **Real-time Filtering**: Instant search and filter results
 - **Image Upload**: Cloudinary integration for word images
 - **Modern UI**: Clean, intuitive design with Tailwind CSS
 - **Form Validation**: Comprehensive input validation
+<<<<<<< HEAD
+=======
+- **Toast Notifications**: User-friendly feedback system
+
+## Tech Stack
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
 
 ### Frontend
 - **Vite + React**: Fast development and optimized builds
@@ -43,6 +72,10 @@ web application for building and managing  German vocabulary collection and sett
 - **Multer**: File upload handling
 - **bcryptjs**: Password hashing
 
+<<<<<<< HEAD
+=======
+## Getting Started
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
 
 ### Prerequisites
 - Node.js (v18 or higher)

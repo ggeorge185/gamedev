@@ -96,10 +96,22 @@ const Login = () => {
             </Button>
           ) : (
             <Button type='submit' className='bg-blue-600 hover:bg-blue-700'>Login</Button>
+<<<<<<< HEAD
           )}
 {/*           <span className='text-center text-sm'>
             Don't have an account? <Link to='/signup' className='text-blue-600 hover:underline'>Sign up</Link>
           </span> */}
+=======
+          )}
+          <span className='text-center text-sm'>
+            Don't have an account? <Link to='/signup' className='text-blue-600 hover:underline'>Sign up</Link>
+          </span>
+          <div className='mt-4 text-center'>
+            <Link to="/game-login" className='text-sm text-gray-500 hover:underline'>
+              Game User Login
+            </Link>
+          </div>
+>>>>>>> cb49ee8418adf8ecf637648a7497a9d945b1cd7e
         </form>
       </div>
     </div>
