@@ -19,7 +19,7 @@ const seedData = async () => {
         // Create scenarios
         const scenarios = await Scenario.insertMany([
             {
-                name: 'Finding Accommodation',
+                name: 'Accommodation',
                 description: 'Find suitable housing in Germany',
                 order: 1,
                 mapPosition: { x: 20, y: 30 },
@@ -104,6 +104,16 @@ const seedData = async () => {
                 configOptions: {
                     questionsCount: 10,
                     timePerQuestion: 30
+                },
+                isActive: true
+            },
+            {
+                name: 'Anagram',
+                description: 'Unscramble German words',
+                componentName: 'AnagramGame',
+                configOptions: {
+                    wordsCount: 10,
+                    timeLimit: 180
                 },
                 isActive: true
             }

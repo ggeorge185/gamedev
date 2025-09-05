@@ -19,6 +19,31 @@ export const getAllScenarios = async (req, res) => {
     }
 };
 
+export const getScenarioById = async (req, res) => {
+    try {
+        const { scenarioId } = req.params;
+        const scenario = await Scenario.findById(scenarioId);
+        
+        if (!scenario) {
+            return res.status(404).json({
+                message: "Scenario not found",
+                success: false,
+            });
+        }
+        
+        return res.status(200).json({
+            scenario,
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+        });
+    }
+};
+
 export const createScenario = async (req, res) => {
     try {
         const { name, description, order, mapPosition, storyContext, availableLevels, isRequired } = req.body;

@@ -1,6 +1,7 @@
 import express from "express";
 import { 
     getAllScenarios, 
+    getScenarioById,
     createScenario, 
     updateScenario,
     getAllGameTypes, 
@@ -16,6 +17,7 @@ const router = express.Router();
 
 // Public routes for game users
 router.route('/scenarios').get(getAllScenarios);
+router.route('/scenarios/:scenarioId').get(getScenarioById);
 router.route('/game-types').get(getAllGameTypes);
 router.route('/scenario-configs').get(getScenarioConfigs);
 

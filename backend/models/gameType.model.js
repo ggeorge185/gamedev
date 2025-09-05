@@ -5,7 +5,7 @@ const gameTypeSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        enum: ['Taboo', 'Memory Game', 'Scrabble', 'Quiz']
+        enum: ['Taboo', 'Memory Game', 'Scrabble', 'Quiz', 'Anagram']
     },
     description: {
         type: String,
