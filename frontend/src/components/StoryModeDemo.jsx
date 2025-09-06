@@ -126,8 +126,15 @@ const StoryModeDemo = () => {
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Germany Map</h2>
               <div className="relative bg-gradient-to-b from-blue-100 to-green-100 rounded-lg h-96 overflow-hidden">
-                {/* Map Background */}
-                <div className="absolute inset-0 opacity-20">
+                {/* Map Background Image */}
+                <img
+                  src="/image.jpg"
+                  alt="Map background"
+                  className="absolute inset-0 w-full h-full object-cover opacity-60"
+                  style={{ zIndex: 0 }}
+                />
+                {/* Map Background SVG */}
+                <div className="absolute inset-0 opacity-20" style={{ zIndex: 1 }}>
                   <svg className="w-full h-full" viewBox="0 0 100 100">
                     {/* Simple Germany outline */}
                     <path
