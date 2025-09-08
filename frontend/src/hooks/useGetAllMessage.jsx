@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const useGetAllMessage = () => {
+    
     const dispatch = useDispatch();
     const {selectedUser} = useSelector(store=>store.auth);
     useEffect(() => {
@@ -22,3 +23,4 @@ const useGetAllMessage = () => {
     }, [selectedUser]);
 };
 export default useGetAllMessage;
+
