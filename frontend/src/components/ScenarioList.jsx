@@ -27,7 +27,6 @@ const ScenarioList = ({ type = 'active', showAddButton = false, onAddClick = nul
     const [searchQuery, setSearchQuery] = useState('');
     const [filterTopic, setFilterTopic] = useState('');
     const [filterLevel, setFilterLevel] = useState('');
-    const [filterDifficulty, setFilterDifficulty] = useState('');
 
     // Use appropriate hooks based on type
     useGetActiveScenarios();
@@ -52,18 +51,23 @@ const ScenarioList = ({ type = 'active', showAddButton = false, onAddClick = nul
             scenario.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             scenario.story.toLowerCase().includes(searchQuery.toLowerCase()) ||
             scenario.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (scenario.levels && scenario.levels.some(level => 
+                (level.selectedGameId?.displayName || '').toLowerCase().includes(searchQuery.toLowerCase())
+            )) ||
             (scenario.selectedGameId?.displayName || '').toLowerCase().includes(searchQuery.toLowerCase());
 
         const matchesTopic = filterTopic === '' || filterTopic === 'all-topics' || scenario.topic === filterTopic;
-        const matchesLevel = filterLevel === '' || filterLevel === 'all-levels' || scenario.languageLevel === filterLevel;
-        const matchesDifficulty = filterDifficulty === '' || filterDifficulty === 'all-difficulties' || scenario.difficulty === filterDifficulty;
+        
+        // Check if scenario has the specified level (either in levels array or legacy languageLevel)
+        const matchesLevel = filterLevel === '' || filterLevel === 'all-levels' || 
+            (scenario.levels && scenario.levels.some(level => level.languageLevel === filterLevel)) ||
+            scenario.languageLevel === filterLevel;
 
-        return matchesSearch && matchesTopic && matchesLevel && matchesDifficulty;
+        return matchesSearch && matchesTopic && matchesLevel;
     });
 
 
     const languageLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-    const difficulties = ['easy', 'medium', 'hard'];
 
     const getTitle = () => {
         switch (type) {
@@ -154,20 +158,6 @@ const ScenarioList = ({ type = 'active', showAddButton = false, onAddClick = nul
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Select value={filterDifficulty} onValueChange={setFilterDifficulty}>
-                                <SelectTrigger className="w-full sm:w-32">
-                                    <Filter className="w-4 h-4 mr-2" />
-                                    <SelectValue placeholder="Difficulty" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all-difficulties">All Difficulties</SelectItem>
-                                    {difficulties.map(difficulty => (
-                                        <SelectItem key={difficulty} value={difficulty}>
-                                            {difficulty}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
                         </div>
                     </div>
 
@@ -181,12 +171,10 @@ const ScenarioList = ({ type = 'active', showAddButton = false, onAddClick = nul
                             <span>Showing results for "{searchQuery}"</span>
                         )}
                         {(filterTopic && filterTopic !== 'all-topics' || 
-                          filterLevel && filterLevel !== 'all-levels' || 
-                          filterDifficulty && filterDifficulty !== 'all-difficulties') && (
+                          filterLevel && filterLevel !== 'all-levels') && (
                             <span>Filtered by: {[
                                 filterTopic && filterTopic !== 'all-topics' ? filterTopic : null,
-                                filterLevel && filterLevel !== 'all-levels' ? filterLevel : null,
-                                filterDifficulty && filterDifficulty !== 'all-difficulties' ? filterDifficulty : null
+                                filterLevel && filterLevel !== 'all-levels' ? filterLevel : null
                             ].filter(Boolean).join(', ')}</span>
                         )}
                     </div>
@@ -201,7 +189,7 @@ const ScenarioList = ({ type = 'active', showAddButton = false, onAddClick = nul
                             <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                             <h3 className="text-lg font-medium text-gray-900 mb-2">No scenarios found</h3>
                             <p className="text-gray-600 mb-4">
-                                {searchQuery || filterTopic || filterLevel || filterDifficulty
+                                {searchQuery || filterTopic || filterLevel
                                     ? 'Try adjusting your search or filters'
                                     : 'No scenarios are available at the moment'
                                 }

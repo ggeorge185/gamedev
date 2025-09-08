@@ -9,38 +9,45 @@ export const createScenario = async (req, res) => {
             name,
             story,
             topic,
-            selectedGameId,
-            languageLevel,
+            levels,
             sequence,
-            isActive,
-            estimatedDuration,
-            difficulty
+            isActive
         } = req.body;
 
         const authorId = req.id;
 
         // Validate required fields
-        if (!name || !story || !topic || !selectedGameId) {
+        if (!name || !story || !topic || !levels || !Array.isArray(levels) || levels.length === 0) {
             return res.status(400).json({
-                message: 'Name, story, topic, and selected game are required',
+                message: 'Name, story, topic, and at least one level are required',
                 success: false
             });
         }
 
-        // Validate that the selected game exists and is active
-        const game = await Game.findById(selectedGameId);
-        if (!game) {
-            return res.status(400).json({
-                message: 'Selected game does not exist',
-                success: false
-            });
-        }
+        // Validate each level
+        for (const level of levels) {
+            if (!level.languageLevel || !level.selectedGameId) {
+                return res.status(400).json({
+                    message: 'Each level must have a language level and selected game',
+                    success: false
+                });
+            }
 
-        if (!game.isActive) {
-            return res.status(400).json({
-                message: 'Selected game is not active',
-                success: false
-            });
+            // Validate that the selected game exists and is active
+            const game = await Game.findById(level.selectedGameId);
+            if (!game) {
+                return res.status(400).json({
+                    message: `Selected game for level ${level.languageLevel} does not exist`,
+                    success: false
+                });
+            }
+
+            if (!game.isActive) {
+                return res.status(400).json({
+                    message: `Selected game for level ${level.languageLevel} is not active`,
+                    success: false
+                });
+            }
         }
 
         // Check if scenario name already exists
@@ -64,18 +71,15 @@ export const createScenario = async (req, res) => {
             name: name.trim(),
             story: story.trim(),
             topic: topic.trim(),
-            selectedGameId,
-            languageLevel: languageLevel || 'A1',
+            levels,
             sequence: scenarioSequence,
             isActive: isActive !== undefined ? isActive : true,
-            estimatedDuration: estimatedDuration || 10,
-            difficulty: difficulty || 'medium',
             author: authorId
         });
 
         const populatedScenario = await Scenario.findById(scenario._id)
             .populate({
-                path: 'selectedGameId',
+                path: 'levels.selectedGameId',
                 select: '-author' // Exclude author from game details
             })
             .populate({
@@ -104,7 +108,6 @@ export const getAllScenarios = async (req, res) => {
         const { 
             topic, 
             languageLevel, 
-            difficulty, 
             isActive,
             gameType 
         } = req.query;
@@ -112,14 +115,13 @@ export const getAllScenarios = async (req, res) => {
         let filter = {};
         
         if (topic) filter.topic = { $regex: topic, $options: 'i' };
-        if (languageLevel) filter.languageLevel = languageLevel;
-        if (difficulty) filter.difficulty = difficulty;
+        if (languageLevel) filter['levels.languageLevel'] = languageLevel;
         if (isActive !== undefined) filter.isActive = isActive === 'true';
 
         let scenarios = await Scenario.find(filter)
             .populate({
-                path: 'selectedGameId',
-                select: 'name displayName gameType difficulty isActive'
+                path: 'levels.selectedGameId',
+                select: 'name displayName gameType isActive'
             })
             .populate({
                 path: 'author',
@@ -130,7 +132,9 @@ export const getAllScenarios = async (req, res) => {
         // Filter by game type if specified
         if (gameType) {
             scenarios = scenarios.filter(scenario => 
-                scenario.selectedGameId && scenario.selectedGameId.gameType === gameType
+                scenario.levels && scenario.levels.some(level => 
+                    level.selectedGameId && level.selectedGameId.gameType === gameType
+                )
             );
         }
 
@@ -152,9 +156,9 @@ export const getActiveScenarios = async (req, res) => {
     try {
         const scenarios = await Scenario.find({ isActive: true })
             .populate({
-                path: 'selectedGameId',
+                path: 'levels.selectedGameId',
                 match: { isActive: true }, // Only populate active games
-                select: 'name displayName gameType difficulty'
+                select: 'name displayName gameType'
             })
             .populate({
                 path: 'author',
@@ -162,8 +166,10 @@ export const getActiveScenarios = async (req, res) => {
             })
             .sort({ sequence: 1 });
 
-        // Filter out scenarios with inactive games
-        const activeScenarios = scenarios.filter(scenario => scenario.selectedGameId);
+        // Filter out scenarios where all levels have inactive games
+        const activeScenarios = scenarios.filter(scenario => 
+            scenario.levels && scenario.levels.some(level => level.selectedGameId)
+        );
 
         return res.status(200).json({
             scenarios: activeScenarios,
@@ -184,8 +190,8 @@ export const getUserScenarios = async (req, res) => {
         const authorId = req.id;
         const scenarios = await Scenario.find({ author: authorId })
             .populate({
-                path: 'selectedGameId',
-                select: 'name displayName gameType difficulty isActive'
+                path: 'levels.selectedGameId',
+                select: 'name displayName gameType isActive'
             })
             .populate({
                 path: 'author',
@@ -213,7 +219,7 @@ export const getScenarioById = async (req, res) => {
         
         const scenario = await Scenario.findById(scenarioId)
             .populate({
-                path: 'selectedGameId',
+                path: 'levels.selectedGameId',
                 populate: {
                     path: 'author',
                     select: '-password'
@@ -281,20 +287,24 @@ export const updateScenario = async (req, res) => {
             }
         }
 
-        // If updating selectedGameId, validate the game
-        if (updateData.selectedGameId && updateData.selectedGameId !== scenario.selectedGameId.toString()) {
-            const game = await Game.findById(updateData.selectedGameId);
-            if (!game) {
-                return res.status(400).json({
-                    message: 'Selected game does not exist',
-                    success: false
-                });
-            }
-            if (!game.isActive) {
-                return res.status(400).json({
-                    message: 'Selected game is not active',
-                    success: false
-                });
+        // If updating levels, validate each game
+        if (updateData.levels && Array.isArray(updateData.levels)) {
+            for (const level of updateData.levels) {
+                if (level.selectedGameId) {
+                    const game = await Game.findById(level.selectedGameId);
+                    if (!game) {
+                        return res.status(400).json({
+                            message: `Selected game for level ${level.languageLevel} does not exist`,
+                            success: false
+                        });
+                    }
+                    if (!game.isActive) {
+                        return res.status(400).json({
+                            message: `Selected game for level ${level.languageLevel} is not active`,
+                            success: false
+                        });
+                    }
+                }
             }
         }
 
@@ -322,8 +332,8 @@ export const updateScenario = async (req, res) => {
             cleanedData,
             { new: true, runValidators: true }
         ).populate({
-            path: 'selectedGameId',
-            select: 'name displayName gameType difficulty isActive'
+            path: 'levels.selectedGameId',
+            select: 'name displayName gameType isActive'
         }).populate({
             path: 'author',
             select: '-password'
@@ -417,8 +427,8 @@ export const reorderScenarios = async (req, res) => {
         const updatedScenarios = await Scenario.find({
             _id: { $in: scenarioIds }
         }).populate({
-            path: 'selectedGameId',
-            select: 'name displayName gameType difficulty'
+            path: 'levels.selectedGameId',
+            select: 'name displayName gameType'
         }).sort({ sequence: 1 });
 
         return res.status(200).json({
@@ -444,13 +454,13 @@ export const getScenariosByTopic = async (req, res) => {
 
         let filter = { topic: { $regex: topic, $options: 'i' } };
         
-        if (languageLevel) filter.languageLevel = languageLevel;
+        if (languageLevel) filter['levels.languageLevel'] = languageLevel;
         if (isActive !== undefined) filter.isActive = isActive === 'true';
 
         const scenarios = await Scenario.find(filter)
             .populate({
-                path: 'selectedGameId',
-                select: 'name displayName gameType difficulty isActive'
+                path: 'levels.selectedGameId',
+                select: 'name displayName gameType isActive'
             })
             .populate({
                 path: 'author',
@@ -499,8 +509,8 @@ export const toggleScenarioStatus = async (req, res) => {
             { isActive: !scenario.isActive },
             { new: true }
         ).populate({
-            path: 'selectedGameId',
-            select: 'name displayName gameType difficulty'
+            path: 'levels.selectedGameId',
+            select: 'name displayName gameType'
         }).populate({
             path: 'author',
             select: '-password'

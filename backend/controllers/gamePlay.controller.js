@@ -37,12 +37,15 @@ const generateWrongAnswers = (correctAnswer, allWords, count = 3) => {
 
 export const startGame = async (req, res) => {
     try {
-        const { scenarioId } = req.params;
+        const { scenarioId, levelIndex = 0 } = req.params;
         const playerId = req.id;
 
-        // Fetch scenario with populated game
+        // Fetch scenario with populated levels' games
         const scenario = await Scenario.findById(scenarioId)
-            .populate('selectedGameId')
+            .populate({
+                path: 'levels.selectedGameId',
+                select: 'name displayName description gameType timeLimit minWords maxWords instructions isActive'
+            })
             .populate('author', 'username profilePicture');
 
         if (!scenario) {
@@ -59,23 +62,34 @@ export const startGame = async (req, res) => {
             });
         }
 
-        const game = scenario.selectedGameId;
-        if (!game || !game.isActive) {
+        // Validate level index
+        const levelIdx = parseInt(levelIndex);
+        if (levelIdx < 0 || levelIdx >= scenario.levels.length) {
             return res.status(400).json({
-                message: 'Associated game is not available',
+                message: 'Invalid level index',
                 success: false
             });
         }
 
-        // Fetch vocabulary words matching topic and language level
+        const currentLevel = scenario.levels[levelIdx];
+        const game = currentLevel.selectedGameId;
+
+        if (!game || !game.isActive) {
+            return res.status(400).json({
+                message: 'Associated game is not available for this level',
+                success: false
+            });
+        }
+
+        // Fetch vocabulary words matching topic and specific language level
         const vocabularyWords = await Word.find({
             topic: scenario.topic,
-            languageLevel: scenario.languageLevel
+            languageLevel: currentLevel.languageLevel
         }).populate('author', 'username');
 
         if (vocabularyWords.length < game.minWords) {
             return res.status(400).json({
-                message: `Insufficient vocabulary words. Need at least ${game.minWords} words, found ${vocabularyWords.length}`,
+                message: `Insufficient vocabulary words for level ${currentLevel.languageLevel}. Need at least ${game.minWords} words, found ${vocabularyWords.length}`,
                 success: false
             });
         }
@@ -88,17 +102,21 @@ export const startGame = async (req, res) => {
 
         // Prepare response
         const gameSession = {
-            sessionId: `${scenarioId}_${Date.now()}`,
+            sessionId: `${scenarioId}_${levelIdx}_${Date.now()}`,
             scenario: {
                 _id: scenario._id,
                 name: scenario.name,
                 story: scenario.story,
                 topic: scenario.topic,
-                languageLevel: scenario.languageLevel,
-                difficulty: scenario.difficulty,
-                estimatedDuration: scenario.estimatedDuration,
+                totalLevels: scenario.levels.length,
+                currentLevel: levelIdx,
                 sequence: scenario.sequence,
                 author: scenario.author
+            },
+            level: {
+                index: levelIdx,
+                languageLevel: currentLevel.languageLevel,
+                estimatedDuration: currentLevel.estimatedDuration
             },
             game: {
                 _id: game._id,
@@ -106,7 +124,6 @@ export const startGame = async (req, res) => {
                 displayName: game.displayName,
                 description: game.description,
                 gameType: game.gameType,
-                difficulty: game.difficulty,
                 timeLimit: game.timeLimit,
                 minWords: game.minWords,
                 maxWords: game.maxWords,
@@ -269,10 +286,32 @@ export const getGameData = async (req, res) => {
             });
         }
 
+        if (!game.isActive) {
+            return res.status(400).json({
+                message: 'Game is not currently active',
+                success: false
+            });
+        }
+
+        // Validate required parameters
+        if (!topic || !languageLevel) {
+            return res.status(400).json({
+                message: 'Topic and language level are required',
+                success: false
+            });
+        }
+
         const words = await Word.find({
             topic: topic,
             languageLevel: languageLevel
         }).limit(parseInt(wordCount));
+
+        if (words.length === 0) {
+            return res.status(404).json({
+                message: `No words found for topic "${topic}" at level "${languageLevel}"`,
+                success: false
+            });
+        }
 
         const gameData = await getFormattedGameData(game, words);
 
@@ -284,6 +323,12 @@ export const getGameData = async (req, res) => {
                 displayName: game.displayName,
                 gameType: game.gameType,
                 instructions: game.instructions
+            },
+            metadata: {
+                topic,
+                languageLevel,
+                totalWords: words.length,
+                requestedCount: parseInt(wordCount)
             },
             success: true
         });
@@ -302,6 +347,7 @@ export const submitGameResult = async (req, res) => {
         const {
             scenarioId,
             gameId,
+            levelIndex,
             score,
             totalQuestions,
             correctAnswers,
@@ -322,13 +368,24 @@ export const submitGameResult = async (req, res) => {
 
         // Fetch scenario and game for additional data
         const [scenario, game] = await Promise.all([
-            Scenario.findById(scenarioId),
+            Scenario.findById(scenarioId).populate('levels.selectedGameId', 'displayName gameType'),
             Game.findById(gameId)
         ]);
 
         if (!scenario || !game) {
             return res.status(404).json({
                 message: 'Scenario or game not found',
+                success: false
+            });
+        }
+
+        // Validate level index and get level info
+        const levelIdx = parseInt(levelIndex) || 0;
+        const currentLevel = scenario.levels[levelIdx];
+        
+        if (!currentLevel) {
+            return res.status(400).json({
+                message: 'Invalid level index',
                 success: false
             });
         }
@@ -346,10 +403,10 @@ export const submitGameResult = async (req, res) => {
             totalQuestions,
             correctAnswers: Math.min(correctAnswers, totalQuestions), // Ensure correct answers <= total
             completionTime: calculatedCompletionTime,
-            difficulty: scenario.difficulty,
-            languageLevel: scenario.languageLevel,
+            languageLevel: currentLevel.languageLevel, // Use level-specific language level
             topic: scenario.topic,
             gameType: game.gameType,
+            levelIndex: levelIdx, // Store which level was played
             detailedResults: detailedResults || {},
             completedAt: new Date()
         });
@@ -357,12 +414,17 @@ export const submitGameResult = async (req, res) => {
         // Populate the result with related data
         const populatedResult = await GameResult.findById(gameResult._id)
             .populate('player', 'username profilePicture')
-            .populate('scenario', 'name topic languageLevel')
+            .populate('scenario', 'name topic')
             .populate('game', 'displayName gameType');
 
         return res.status(201).json({
             message: 'Game result submitted successfully',
             result: populatedResult,
+            levelInfo: {
+                index: levelIdx,
+                languageLevel: currentLevel.languageLevel,
+                estimatedDuration: currentLevel.estimatedDuration
+            },
             success: true
         });
 
@@ -441,10 +503,17 @@ export const getPlayerResults = async (req, res) => {
 export const getScenarioLeaderboard = async (req, res) => {
     try {
         const { scenarioId } = req.params;
-        const { limit = 10 } = req.query;
+        const { limit = 10, levelIndex } = req.query;
+
+        let matchFilter = { scenario: new mongoose.Types.ObjectId(scenarioId) };
+        
+        // Filter by level index if specified
+        if (levelIndex !== undefined) {
+            matchFilter.levelIndex = parseInt(levelIndex);
+        }
 
         const leaderboard = await GameResult.aggregate([
-            { $match: { scenario: new mongoose.Types.ObjectId(scenarioId) } },
+            { $match: matchFilter },
             {
                 $group: {
                     _id: '$player',
@@ -452,7 +521,9 @@ export const getScenarioLeaderboard = async (req, res) => {
                     averageScore: { $avg: '$score' },
                     totalGames: { $sum: 1 },
                     bestTime: { $min: '$completionTime' },
-                    lastPlayed: { $max: '$createdAt' }
+                    lastPlayed: { $max: '$createdAt' },
+                    levelIndex: { $first: '$levelIndex' },
+                    languageLevel: { $first: '$languageLevel' }
                 }
             },
             { $sort: { bestScore: -1, bestTime: 1 } },
@@ -478,7 +549,9 @@ export const getScenarioLeaderboard = async (req, res) => {
                     averageScore: 1,
                     totalGames: 1,
                     bestTime: 1,
-                    lastPlayed: 1
+                    lastPlayed: 1,
+                    levelIndex: 1,
+                    languageLevel: 1
                 }
             }
         ]);
@@ -486,11 +559,75 @@ export const getScenarioLeaderboard = async (req, res) => {
         return res.status(200).json({
             leaderboard,
             scenarioId,
+            levelIndex: levelIndex !== undefined ? parseInt(levelIndex) : null,
             success: true
         });
 
     } catch (error) {
         console.error('Error getting scenario leaderboard:', error);
+        return res.status(500).json({
+            message: 'Internal server error',
+            success: false
+        });
+    }
+};
+
+// Get scenario level information
+export const getScenarioLevels = async (req, res) => {
+    try {
+        const { scenarioId } = req.params;
+
+        const scenario = await Scenario.findById(scenarioId)
+            .populate({
+                path: 'levels.selectedGameId',
+                select: 'displayName gameType instructions timeLimit'
+            })
+            .populate('author', 'username');
+
+        if (!scenario) {
+            return res.status(404).json({
+                message: 'Scenario not found',
+                success: false
+            });
+        }
+
+        if (!scenario.isActive) {
+            return res.status(400).json({
+                message: 'This scenario is currently inactive',
+                success: false
+            });
+        }
+
+        // Format level information
+        const levels = scenario.levels.map((level, index) => ({
+            index,
+            languageLevel: level.languageLevel,
+            estimatedDuration: level.estimatedDuration,
+            game: level.selectedGameId ? {
+                _id: level.selectedGameId._id,
+                displayName: level.selectedGameId.displayName,
+                gameType: level.selectedGameId.gameType,
+                instructions: level.selectedGameId.instructions,
+                timeLimit: level.selectedGameId.timeLimit
+            } : null
+        }));
+
+        return res.status(200).json({
+            scenario: {
+                _id: scenario._id,
+                name: scenario.name,
+                story: scenario.story,
+                topic: scenario.topic,
+                sequence: scenario.sequence,
+                totalLevels: scenario.levels.length,
+                author: scenario.author
+            },
+            levels,
+            success: true
+        });
+
+    } catch (error) {
+        console.error('Error getting scenario levels:', error);
         return res.status(500).json({
             message: 'Internal server error',
             success: false

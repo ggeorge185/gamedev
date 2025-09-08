@@ -15,7 +15,8 @@ import {
     Hash,
     Settings,
     Info,
-    Gamepad2
+    Gamepad2,
+    Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSelector } from 'react-redux';
@@ -32,10 +33,13 @@ const ScenarioForm = ({ scenario = null, onClose, onSuccess }) => {
         name: '',
         story: '',
         topic: '',
-        languageLevel: 'A1',
-        difficulty: 'medium',
-        selectedGameId: '',
-        estimatedDuration: 15,
+        levels: [
+            {
+                languageLevel: 'A1',
+                selectedGameId: '',
+                estimatedDuration: 15
+            }
+        ],
         sequence: 1,
         isActive: true
     });
@@ -48,10 +52,19 @@ const ScenarioForm = ({ scenario = null, onClose, onSuccess }) => {
                 name: scenario.name || '',
                 story: scenario.story || '',
                 topic: scenario.topic || '',
-                languageLevel: scenario.languageLevel || 'A1',
-                difficulty: scenario.difficulty || 'medium',
-                selectedGameId: scenario.selectedGameId?._id || scenario.selectedGameId || '',
-                estimatedDuration: scenario.estimatedDuration || 15,
+                levels: scenario.levels && scenario.levels.length > 0 
+                    ? scenario.levels.map(level => ({
+                        languageLevel: level.languageLevel || 'A1',
+                        selectedGameId: level.selectedGameId?._id || level.selectedGameId || '',
+                        estimatedDuration: level.estimatedDuration || 15
+                    }))
+                    : [
+                        {
+                            languageLevel: 'A1',
+                            selectedGameId: '',
+                            estimatedDuration: 15
+                        }
+                    ],
                 sequence: scenario.sequence || 1,
                 isActive: scenario.isActive !== undefined ? scenario.isActive : true
             });
@@ -67,11 +80,6 @@ const ScenarioForm = ({ scenario = null, onClose, onSuccess }) => {
         { value: 'C2', label: 'C2 - Proficient', color: 'bg-purple-200 text-purple-900' }
     ];
 
-    const difficulties = [
-        { value: 'easy', label: 'Easy', color: 'bg-green-100 text-green-800' },
-        { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
-        { value: 'hard', label: 'Hard', color: 'bg-red-100 text-red-800' }
-    ];
 
 
     const validateForm = () => {
@@ -80,10 +88,44 @@ const ScenarioForm = ({ scenario = null, onClose, onSuccess }) => {
         if (!formData.name.trim()) newErrors.name = 'Scenario name is required';
         if (!formData.story.trim()) newErrors.story = 'Story/description is required';
         if (!formData.topic.trim()) newErrors.topic = 'Topic is required';
-        if (!formData.selectedGameId) newErrors.selectedGameId = 'Game selection is required';
         
-        if (formData.estimatedDuration < 5) newErrors.estimatedDuration = 'Duration must be at least 5 minutes';
-        if (formData.estimatedDuration > 120) newErrors.estimatedDuration = 'Duration cannot exceed 120 minutes';
+        if (!formData.levels || formData.levels.length === 0) {
+            newErrors.levels = 'At least one level is required';
+        } else {
+            // Validate each level
+            const levelErrors = {};
+            const usedLevels = new Set();
+            
+            formData.levels.forEach((level, index) => {
+                const levelError = {};
+                
+                if (!level.selectedGameId) {
+                    levelError.selectedGameId = 'Game selection is required';
+                }
+                
+                if (level.estimatedDuration < 5) {
+                    levelError.estimatedDuration = 'Duration must be at least 5 minutes';
+                }
+                if (level.estimatedDuration > 120) {
+                    levelError.estimatedDuration = 'Duration cannot exceed 120 minutes';
+                }
+                
+                // Check for duplicate levels
+                if (usedLevels.has(level.languageLevel)) {
+                    levelError.languageLevel = 'Duplicate language level';
+                } else {
+                    usedLevels.add(level.languageLevel);
+                }
+                
+                if (Object.keys(levelError).length > 0) {
+                    levelErrors[index] = levelError;
+                }
+            });
+            
+            if (Object.keys(levelErrors).length > 0) {
+                newErrors.levelErrors = levelErrors;
+            }
+        }
         
         if (formData.sequence < 1) newErrors.sequence = 'Sequence must be at least 1';
         if (formData.sequence > 1000) newErrors.sequence = 'Sequence cannot exceed 1000';
@@ -136,7 +178,70 @@ const ScenarioForm = ({ scenario = null, onClose, onSuccess }) => {
         return hours > 0 ? `${hours}h ${remainingMinutes}m` : `${remainingMinutes}m`;
     };
 
-    const selectedGame = activeGames.find(game => game._id === formData.selectedGameId);
+    const addLevel = () => {
+        const usedLevels = formData.levels.map(level => level.languageLevel);
+        const availableLevels = languageLevels.filter(level => !usedLevels.includes(level.value));
+        
+        if (availableLevels.length === 0) {
+            return; // All levels are already used
+        }
+
+        const newLevel = {
+            languageLevel: availableLevels[0].value,
+            selectedGameId: '',
+            estimatedDuration: 15
+        };
+
+        setFormData(prev => ({
+            ...prev,
+            levels: [...prev.levels, newLevel]
+        }));
+    };
+
+    const removeLevel = (index) => {
+        if (formData.levels.length > 1) {
+            setFormData(prev => ({
+                ...prev,
+                levels: prev.levels.filter((_, i) => i !== index)
+            }));
+            
+            // Clear level-specific errors
+            if (errors.levelErrors && errors.levelErrors[index]) {
+                const newLevelErrors = { ...errors.levelErrors };
+                delete newLevelErrors[index];
+                setErrors(prev => ({
+                    ...prev,
+                    levelErrors: newLevelErrors
+                }));
+            }
+        }
+    };
+
+    const updateLevel = (index, field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            levels: prev.levels.map((level, i) => 
+                i === index ? { ...level, [field]: value } : level
+            )
+        }));
+        
+        // Clear level-specific errors
+        if (errors.levelErrors && errors.levelErrors[index] && errors.levelErrors[index][field]) {
+            const newLevelErrors = { ...errors.levelErrors };
+            delete newLevelErrors[index][field];
+            if (Object.keys(newLevelErrors[index]).length === 0) {
+                delete newLevelErrors[index];
+            }
+            setErrors(prev => ({
+                ...prev,
+                levelErrors: newLevelErrors
+            }));
+        }
+    };
+
+    const getTotalDuration = () => {
+        return formData.levels.reduce((total, level) => total + (level.estimatedDuration || 0), 0);
+    };
 
     return (
         <Card className="w-full max-w-2xl mx-auto">
@@ -236,106 +341,150 @@ const ScenarioForm = ({ scenario = null, onClose, onSuccess }) => {
                         </div>
                     </div>
 
-                    {/* Learning Settings */}
+                    {/* Levels Configuration */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                            <Settings className="w-5 h-5 text-blue-600" />
-                            Learning Settings
-                        </h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="languageLevel">Language Level</Label>
-                                <Select value={formData.languageLevel} onValueChange={(value) => handleInputChange('languageLevel', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {languageLevels.map(level => (
-                                            <SelectItem key={level.value} value={level.value}>
-                                                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${level.color}`}>
-                                                    {level.label}
-                                                </span>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="difficulty">Difficulty</Label>
-                                <Select value={formData.difficulty} onValueChange={(value) => handleInputChange('difficulty', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {difficulties.map(diff => (
-                                            <SelectItem key={diff.value} value={diff.value}>
-                                                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${diff.color}`}>
-                                                    {diff.label}
-                                                </span>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                                <Settings className="w-5 h-5 text-blue-600" />
+                                Levels Configuration
+                            </h3>
+                            {formData.levels.length < languageLevels.length && (
+                                <Button type="button" variant="outline" size="sm" onClick={addLevel}>
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Add Level
+                                </Button>
+                            )}
                         </div>
-                    </div>
 
-                    {/* Game & Duration Settings */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                            <Gamepad2 className="w-5 h-5 text-blue-600" />
-                            Game & Duration
-                        </h3>
+                        {errors.levels && <p className="text-red-500 text-sm">{errors.levels}</p>}
+                        
+                        <div className="space-y-6">
+                            {formData.levels.map((level, index) => (
+                                <Card key={index} className="border-2 border-gray-100">
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <Target className="w-4 h-4 text-blue-600" />
+                                                <h4 className="text-md font-semibold">
+                                                    Level {index + 1}: {level.languageLevel}
+                                                </h4>
+                                                <Badge className={`${languageLevels.find(l => l.value === level.languageLevel)?.color}`}>
+                                                    {languageLevels.find(l => l.value === level.languageLevel)?.label}
+                                                </Badge>
+                                            </div>
+                                            {formData.levels.length > 1 && (
+                                                <Button 
+                                                    type="button" 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    onClick={() => removeLevel(index)}
+                                                    className="text-red-600 hover:text-red-700"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Language Level *</Label>
+                                                <Select 
+                                                    value={level.languageLevel} 
+                                                    onValueChange={(value) => updateLevel(index, 'languageLevel', value)}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {languageLevels.filter(l => 
+                                                            l.value === level.languageLevel || 
+                                                            !formData.levels.some(existingLevel => existingLevel.languageLevel === l.value)
+                                                        ).map(lvl => (
+                                                            <SelectItem key={lvl.value} value={lvl.value}>
+                                                                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${lvl.color}`}>
+                                                                    {lvl.label}
+                                                                </span>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                {errors.levelErrors?.[index]?.languageLevel && (
+                                                    <p className="text-red-500 text-sm">{errors.levelErrors[index].languageLevel}</p>
+                                                )}
+                                            </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="selectedGameId">Game *</Label>
-                                <Select value={formData.selectedGameId} onValueChange={(value) => handleInputChange('selectedGameId', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select game" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {activeGames.map(game => (
-                                            <SelectItem key={game._id} value={game._id}>
+                                            <div className="space-y-2">
+                                                <Label>Duration (minutes) *</Label>
                                                 <div className="flex items-center gap-2">
-                                                    <span>{game.displayName}</span>
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {game.gameType}
-                                                    </Badge>
+                                                    <Clock className="w-4 h-4 text-gray-400" />
+                                                    <Input
+                                                        type="number"
+                                                        min="5"
+                                                        max="120"
+                                                        value={level.estimatedDuration}
+                                                        onChange={(e) => updateLevel(index, 'estimatedDuration', parseInt(e.target.value) || 5)}
+                                                    />
                                                 </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.selectedGameId && <p className="text-red-500 text-sm">{errors.selectedGameId}</p>}
-                                {selectedGame && (
-                                    <p className="text-xs text-gray-500">
-                                        {selectedGame.description}
-                                    </p>
-                                )}
-                            </div>
+                                                {errors.levelErrors?.[index]?.estimatedDuration && (
+                                                    <p className="text-red-500 text-sm">{errors.levelErrors[index].estimatedDuration}</p>
+                                                )}
+                                                <p className="text-xs text-gray-500">
+                                                    {formatDuration(level.estimatedDuration)}
+                                                </p>
+                                            </div>
+                                        </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="estimatedDuration">Duration (minutes) *</Label>
-                                <div className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-gray-400" />
-                                    <Input
-                                        id="estimatedDuration"
-                                        type="number"
-                                        min="5"
-                                        max="120"
-                                        value={formData.estimatedDuration}
-                                        onChange={(e) => handleInputChange('estimatedDuration', parseInt(e.target.value) || 5)}
-                                    />
-                                </div>
-                                {errors.estimatedDuration && <p className="text-red-500 text-sm">{errors.estimatedDuration}</p>}
-                                <p className="text-xs text-gray-500">
-                                    {formatDuration(formData.estimatedDuration)}
-                                </p>
-                            </div>
+                                        <div className="mt-4 space-y-2">
+                                            <Label>Game *</Label>
+                                            <Select 
+                                                value={level.selectedGameId} 
+                                                onValueChange={(value) => updateLevel(index, 'selectedGameId', value)}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select game" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {activeGames.map(game => (
+                                                        <SelectItem key={game._id} value={game._id}>
+                                                            <div className="flex items-center gap-2">
+                                                                <span>{game.displayName}</span>
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {game.gameType}
+                                                                </Badge>
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.levelErrors?.[index]?.selectedGameId && (
+                                                <p className="text-red-500 text-sm">{errors.levelErrors[index].selectedGameId}</p>
+                                            )}
+                                            {level.selectedGameId && (
+                                                <p className="text-xs text-gray-500">
+                                                    {activeGames.find(g => g._id === level.selectedGameId)?.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
                         </div>
+
+                        {/* Total Duration Summary */}
+                        <Card className="bg-blue-50 border-blue-200">
+                            <CardContent className="pt-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="w-5 h-5 text-blue-600" />
+                                        <span className="font-semibold text-blue-900">Total Estimated Duration:</span>
+                                    </div>
+                                    <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+                                        {formatDuration(getTotalDuration())}
+                                    </Badge>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     {/* Status */}

@@ -20,28 +20,36 @@ const scenarioSchema = new mongoose.Schema({
         trim: true,
         maxlength: [50, 'Topic cannot exceed 50 characters']
     },
-    selectedGameId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Game',
-        required: [true, 'Selected game is required'],
-        validate: {
-            validator: async function(gameId) {
-                // Check if the game exists and is active
-                const Game = mongoose.model('Game');
-                const game = await Game.findById(gameId);
-                return game && game.isActive;
+    levels: [{
+        languageLevel: {
+            type: String,
+            enum: {
+                values: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+                message: 'Language level must be one of: A1, A2, B1, B2, C1, C2'
             },
-            message: 'Selected game must exist and be active'
-        }
-    },
-    languageLevel: {
-        type: String,
-        enum: {
-            values: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
-            message: 'Language level must be one of: A1, A2, B1, B2, C1, C2'
+            required: [true, 'Language level is required for each level']
         },
-        default: 'A1'
-    },
+        selectedGameId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game',
+            required: [true, 'Selected game is required for each level'],
+            validate: {
+                validator: async function(gameId) {
+                    // Check if the game exists and is active
+                    const Game = mongoose.model('Game');
+                    const game = await Game.findById(gameId);
+                    return game && game.isActive;
+                },
+                message: 'Selected game must exist and be active'
+            }
+        },
+        estimatedDuration: {
+            type: Number,
+            default: 10,
+            min: [1, 'Estimated duration must be at least 1 minute'],
+            max: [120, 'Estimated duration cannot exceed 2 hours']
+        }
+    }],
     sequence: {
         type: Number,
         required: [true, 'Sequence number is required'],
@@ -56,17 +64,6 @@ const scenarioSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    estimatedDuration: {
-        type: Number,
-        default: 10,
-        min: [1, 'Estimated duration must be at least 1 minute'],
-        max: [120, 'Estimated duration cannot exceed 2 hours']
-    },
-    difficulty: {
-        type: String,
-        enum: ['easy', 'medium', 'hard'],
-        default: 'medium'
-    },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -79,28 +76,61 @@ const scenarioSchema = new mongoose.Schema({
 // Indexes for efficient querying
 scenarioSchema.index({ sequence: 1 }); // For ordering scenarios
 scenarioSchema.index({ topic: 1 }); // For topic-based queries
-scenarioSchema.index({ languageLevel: 1 }); // For level-based queries
+scenarioSchema.index({ 'levels.languageLevel': 1 }); // For level-based queries
 scenarioSchema.index({ isActive: 1 }); // For active scenario queries
-scenarioSchema.index({ selectedGameId: 1 }); // For game-based queries
+scenarioSchema.index({ 'levels.selectedGameId': 1 }); // For game-based queries
 scenarioSchema.index({ author: 1 }); // For user scenarios
 
 // Compound index for topic and level queries
-scenarioSchema.index({ topic: 1, languageLevel: 1 });
+scenarioSchema.index({ topic: 1, 'levels.languageLevel': 1 });
 
-// Virtual for formatted duration
-scenarioSchema.virtual('formattedDuration').get(function() {
-    if (this.estimatedDuration >= 60) {
-        const hours = Math.floor(this.estimatedDuration / 60);
-        const minutes = this.estimatedDuration % 60;
-        return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-    }
-    return `${this.estimatedDuration}m`;
+// Virtual to check if scenario has multiple levels
+scenarioSchema.virtual('hasMultipleLevels').get(function() {
+    return this.levels && this.levels.length > 1;
 });
 
-// Pre-save middleware to handle sequence uniqueness and ordering
+// Virtual to get all language levels in this scenario
+scenarioSchema.virtual('languageLevels').get(function() {
+    if (!this.levels) return [];
+    return this.levels.map(level => level.languageLevel);
+});
+
+// Virtual to get total estimated duration across all levels
+scenarioSchema.virtual('totalEstimatedDuration').get(function() {
+    if (!this.levels) return 0;
+    return this.levels.reduce((total, level) => total + (level.estimatedDuration || 0), 0);
+});
+
+// Virtual for formatted total duration
+scenarioSchema.virtual('formattedTotalDuration').get(function() {
+    const totalDuration = this.totalEstimatedDuration;
+    if (totalDuration >= 60) {
+        const hours = Math.floor(totalDuration / 60);
+        const minutes = totalDuration % 60;
+        return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+    }
+    return `${totalDuration}m`;
+});
+
+// Pre-save middleware to handle sequence uniqueness and level validation
 scenarioSchema.pre('save', async function(next) {
-    if (this.isNew || this.isModified('sequence')) {
-        try {
+    try {
+        // Validate levels array
+        if (!this.levels || this.levels.length === 0) {
+            return next(new Error('At least one level must be defined'));
+        }
+
+        // Check for duplicate language levels within the same scenario
+        const levelSet = new Set();
+        for (const level of this.levels) {
+            if (levelSet.has(level.languageLevel)) {
+                return next(new Error(`Duplicate language level: ${level.languageLevel}`));
+            }
+            levelSet.add(level.languageLevel);
+        }
+
+        // Handle sequence uniqueness
+        if (this.isNew || this.isModified('sequence')) {
             // Check if sequence already exists
             const existingScenario = await this.constructor.findOne({
                 sequence: this.sequence,
@@ -117,9 +147,9 @@ scenarioSchema.pre('save', async function(next) {
                     { $inc: { sequence: 1 } }
                 );
             }
-        } catch (error) {
-            return next(error);
         }
+    } catch (error) {
+        return next(error);
     }
     next();
 });
