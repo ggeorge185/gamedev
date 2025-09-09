@@ -36,7 +36,7 @@ const ScenarioCollectionList = ({ collections, onEdit, onConfigure, loading = fa
   // Sort collections within each group by difficulty level
   Object.keys(groupedCollections).forEach(scenarioName => {
     groupedCollections[scenarioName].sort((a, b) => {
-      const levelOrder = ['A1', 'A2', 'B1', 'B2'];
+      const levelOrder = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
       return levelOrder.indexOf(a.difficultyLevel) - levelOrder.indexOf(b.difficultyLevel);
     });
   });
@@ -132,8 +132,8 @@ const ScenarioCollectionList = ({ collections, onEdit, onConfigure, loading = fa
       {/* Level Distribution */}
       <div className="mt-4 p-4 bg-green-50 rounded-lg">
         <h3 className="font-medium text-gray-900 mb-2">Level Distribution</h3>
-        <div className="grid grid-cols-4 gap-4 text-sm">
-          {['A1', 'A2', 'B1', 'B2'].map(level => (
+        <div className="grid grid-cols-6 gap-4 text-sm">
+          {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map(level => (
             <div key={level}>
               <div className="text-gray-600">{level} Level</div>
               <div className="font-semibold text-green-600">

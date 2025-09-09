@@ -13,7 +13,7 @@ const ScenarioForm = ({ scenario = null, onSave, onCancel }) => {
       y: scenario?.mapPosition?.y || 0
     },
     storyContext: scenario?.storyContext || '',
-    availableLevels: scenario?.availableLevels || ['A1', 'A2', 'B1', 'B2'],
+    availableLevels: scenario?.availableLevels || ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
     isRequired: scenario?.isRequired !== undefined ? scenario.isRequired : true
   });
 
@@ -26,7 +26,7 @@ const ScenarioForm = ({ scenario = null, onSave, onCancel }) => {
     'Medical Insurance'
   ];
 
-  const levelOptions = ['A1', 'A2', 'B1', 'B2'];
+  const levelOptions = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
