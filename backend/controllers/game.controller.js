@@ -129,6 +129,44 @@ export const createGameType = async (req, res) => {
     }
 };
 
+export const updateGameType = async (req, res) => {
+    try {
+        const { gameTypeId } = req.params;
+        const { name, description, componentName, configOptions, isActive } = req.body;
+        
+        const gameType = await GameType.findByIdAndUpdate(
+            gameTypeId,
+            {
+                ...(name && { name }),
+                ...(description && { description }),
+                ...(componentName && { componentName }),
+                ...(configOptions !== undefined && { configOptions }),
+                ...(isActive !== undefined && { isActive })
+            },
+            { new: true }
+        );
+        
+        if (!gameType) {
+            return res.status(404).json({
+                message: "Game type not found",
+                success: false,
+            });
+        }
+        
+        return res.status(200).json({
+            message: "Game type updated successfully",
+            gameType,
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+        });
+    }
+};
+
 // Scenario Configuration Controllers
 export const getScenarioConfigs = async (req, res) => {
     try {
