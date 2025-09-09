@@ -22,6 +22,7 @@ import ScenarioCollections from './components/scenario-collections'
 import Games from './components/Games'
 import Scenarios from './components/Scenarios'
 import DemoPage from './components/DemoPage'
+import ComponentsDemo from './components/ComponentsDemo'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
@@ -122,6 +123,10 @@ const browserRouter = createBrowserRouter([
   {
     path: '/demo',
     element: <DemoPage />
+  },
+  {
+    path: '/components-demo',
+    element: <ComponentsDemo />
   },
 ])
 

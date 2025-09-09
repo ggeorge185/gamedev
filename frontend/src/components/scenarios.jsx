@@ -69,33 +69,39 @@ const Scenarios = () => {
                 <TabsContent value="active">
                     <ScenarioList 
                         type="active" 
+                        scenarios={[]} 
                         onEdit={handleEditScenario}
                         onConfigure={(scenario) => {
                             // Navigate to scenario configuration for this specific scenario
                             console.log(`Opening game configuration for ${scenario.name}`);
                         }}
+                        loading={false}
                     />
                 </TabsContent>
                 
                 <TabsContent value="all">
                     <ScenarioList 
                         type="all" 
+                        scenarios={[]} 
                         onEdit={handleEditScenario}
                         onConfigure={(scenario) => {
                             console.log(`Opening game configuration for ${scenario.name}`);
                         }}
+                        loading={false}
                     />
                 </TabsContent>
                 
                 <TabsContent value="user">
                     <ScenarioList 
                         type="user" 
+                        scenarios={[]} 
                         showAddButton={true} 
                         onAddClick={handleCreateClick}
                         onEdit={handleEditScenario}
                         onConfigure={(scenario) => {
                             console.log(`Opening game configuration for ${scenario.name}`);
                         }}
+                        loading={false}
                     />
                 </TabsContent>
             </Tabs>
