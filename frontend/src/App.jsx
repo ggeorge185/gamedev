@@ -19,6 +19,8 @@ import ScenarioGame from './components/ScenarioGame'
 import GamesComponent from './components/games-component'
 import ScenariosComponent from './components/scenarios-component'
 import ScenarioCollections from './components/scenario-collections'
+import Games from './components/Games'
+import Scenarios from './components/Scenarios'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
@@ -68,6 +70,14 @@ const browserRouter = createBrowserRouter([
       {
         path: '/admin/scenario-collections',
         element: <ProtectedRoutes><ScenarioCollections /></ProtectedRoutes>
+      },
+      {
+        path: '/games',
+        element: <ProtectedRoutes><Games /></ProtectedRoutes>
+      },
+      {
+        path: '/scenarios',
+        element: <ProtectedRoutes><Scenarios /></ProtectedRoutes>
       },
     ]
   },
