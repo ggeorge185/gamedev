@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Shuffle, CheckCircle, RotateCcw, Target } from 'lucide-react';
 
+
 const AnagramGame = ({ scenario, difficulty, instructions, words, onGameComplete }) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
