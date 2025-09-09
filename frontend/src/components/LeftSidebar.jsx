@@ -1,4 +1,4 @@
-import { Home, LogOut, PlusSquare, Search, BookOpen, User, Table2, Settings } from 'lucide-react'
+import { Home, LogOut, PlusSquare, Search, BookOpen, User, Table2, Settings, GamepadIcon, Map } from 'lucide-react'
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
@@ -48,6 +48,10 @@ const LeftSidebar = () => {
             navigate("/game-types");
         } else if (textType === 'Scenario Config') {
             navigate("/scenario-config");
+        } else if (textType === 'Games') {
+            navigate("/games");
+        } else if (textType === 'Scenarios') {
+            navigate("/scenarios");
         }
     }
 
@@ -59,6 +63,8 @@ const LeftSidebar = () => {
         { icon: <Table2 />, text: "Mini Game Table" },
         { icon: <User />, text: "Game Types" },
         { icon: <Settings />, text: "Scenario Config" },
+        { icon: <GamepadIcon />, text: "Games" },
+        { icon: <Map />, text: "Scenarios" },
         { icon: <LogOut />, text: "Logout" },
     ]
 
