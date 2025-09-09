@@ -24,6 +24,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import useScenarioAPI from '@/hooks/useScenarioAPI';
+import ScenarioForm from './ScenarioForm';
 
 const ScenarioCard = ({ scenario, showActions = true, isDragging = false, dragHandleProps = {} }) => {
     const { user } = useSelector(store => store.auth);
@@ -246,20 +247,18 @@ const ScenarioCard = ({ scenario, showActions = true, isDragging = false, dragHa
                 )}
             </CardContent>
 
-            {/* Edit Modal - Placeholder for now */}
+            {/* Edit Modal */}
             {isEditing && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white p-6 rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
-                        <h3 className="text-lg font-semibold mb-4">Edit Scenario</h3>
-                        <p className="text-gray-600 mb-4">Scenario editing form will be implemented here.</p>
-                        <div className="flex justify-end gap-2">
-                            <Button variant="outline" onClick={() => setIsEditing(false)}>
-                                Cancel
-                            </Button>
-                            <Button onClick={() => setIsEditing(false)}>
-                                Save Changes
-                            </Button>
-                        </div>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+                    <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <ScenarioForm 
+                            scenario={scenario}
+                            onClose={() => setIsEditing(false)}
+                            onSuccess={() => {
+                                setIsEditing(false);
+                                toast.success('Scenario updated successfully');
+                            }}
+                        />
                     </div>
                 </div>
             )}
