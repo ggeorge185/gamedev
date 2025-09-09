@@ -1,2 +1,4 @@
 node_modules
-.env
+.envGameServer/backend/venv/
+__pycache__/
+*.pyc
