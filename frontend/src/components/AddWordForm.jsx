@@ -146,30 +146,117 @@ const AddWordForm = ({ open, setOpen }) => {
     }
   };
 
-  const handleJSONUpload = async (e) => {
+  const parseCSV = (text) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    if (lines.length === 0) return [];
+
+    const headers = lines[0].split(',').map(h => h.trim());
+    const expectedHeaders = [
+      'germanWordSingular',
+      'germanWordPlural', 
+      'article',
+      'topic',
+      'languageLevel',
+      'englishTranslation',
+      'englishDescription',
+      'jeopardyQuestion',
+      'clues',
+      'synonyms',
+      'furtherCharacteristics'
+    ];
+
+    // Validate headers
+    const missingHeaders = expectedHeaders.filter(header => !headers.includes(header));
+    if (missingHeaders.length > 0) {
+      throw new Error(`Missing required headers: ${missingHeaders.join(', ')}`);
+    }
+
+    const words = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      if (values.length !== headers.length) continue;
+
+      const word = {};
+      headers.forEach((header, index) => {
+        let value = values[index];
+        
+        // Parse array fields (assuming semicolon-separated)
+        if (['clues', 'synonyms', 'furtherCharacteristics'].includes(header)) {
+          value = value ? value.split(';').map(item => item.trim()).filter(Boolean) : [];
+        }
+        
+        word[header] = value;
+      });
+
+      // Validate required fields
+      if (word.germanWordSingular && word.article && word.topic) {
+        words.push(word);
+      }
+    }
+
+    return words;
+  };
+
+  const handleBulkUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.name.endsWith('.json')) {
-      toast.error('Only JSON files are supported');
+    
+    const isJSON = file.name.endsWith('.json');
+    const isCSV = file.name.endsWith('.csv');
+    
+    if (!isJSON && !isCSV) {
+      toast.error('Only JSON and CSV files are supported');
       return;
     }
+
     setBulkUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
 
     try {
-      const res = await axios.post('/api/v1/word/bulk-upload-json', formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      if (res.data.success) {
-        toast.success(`${res.data.count} words uploaded successfully!`);
-        setOpen(false);
-      } else {
-        toast.error(res.data.message || 'Bulk upload failed');
+      if (isJSON) {
+        // Handle JSON upload (existing functionality)
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await axios.post('/api/v1/word/bulk-upload-json', formData, {
+          withCredentials: true,
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+          toast.success(`${res.data.count} words uploaded successfully!`);
+          setOpen(false);
+        } else {
+          toast.error(res.data.message || 'Bulk upload failed');
+        }
+      } else if (isCSV) {
+        // Handle CSV upload
+        const text = await file.text();
+        const words = parseCSV(text);
+        
+        if (words.length === 0) {
+          toast.error('No valid words found in CSV file');
+          return;
+        }
+
+        // Send parsed CSV data as JSON to backend
+        const res = await axios.post('/api/v1/word/bulk-upload-csv', { words }, {
+          withCredentials: true,
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (res.data.success) {
+          toast.success(`${res.data.count} words uploaded successfully!`);
+          setOpen(false);
+        } else {
+          toast.error(res.data.message || 'CSV upload failed');
+        }
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Bulk upload error');
+      if (error.message.includes('Missing required headers')) {
+        toast.error(error.message);
+      } else {
+        toast.error(error.response?.data?.message || 'Bulk upload error');
+      }
     } finally {
       setBulkUploading(false);
       fileInputRef.current.value = '';
@@ -185,17 +272,20 @@ const AddWordForm = ({ open, setOpen }) => {
         <DialogHeader className="text-center font-semibold">Add New German Word</DialogHeader>
         
         <div className="my-4">
-          <label htmlFor="json-upload" className="block text-sm mb-1">Bulk Upload (JSON):</label>
+          <label htmlFor="bulk-upload" className="block text-sm mb-1">Bulk Upload (JSON/CSV):</label>
           <input
-            id="json-upload"
+            id="bulk-upload"
             ref={fileInputRef}
             type="file"
-            accept=".json"
-            onChange={handleJSONUpload}
+            accept=".json,.csv"
+            onChange={handleBulkUpload}
             disabled={bulkUploading}
           />
           <small className="text-gray-500 block mt-1">
-            Download a <a href="/example.json" className="underline">JSON template</a>.
+            Download templates: <a href="/example.json" className="underline">JSON</a> | <a href="/example.csv" className="underline">CSV</a>
+          </small>
+          <small className="text-gray-500 block mt-1">
+            CSV format: Use semicolons (;) to separate multiple values in clues, synonyms, and characteristics fields.
           </small>
         </div>
 

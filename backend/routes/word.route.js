@@ -9,6 +9,7 @@ import {
     updateWord,
     searchWords,
     bulkUploadJSON,
+    bulkUploadCSV,
     getTopics
 } from "../controllers/word.controller.js";
 
@@ -24,5 +25,8 @@ router.route("/:id").put(isAuthenticated, upload.single('image'), updateWord);
 
 // Bulk JSON Upload route
 router.post("/bulk-upload-json", isAuthenticated, ...bulkUploadJSON);
+
+// Bulk CSV Upload route
+router.post("/bulk-upload-csv", isAuthenticated, bulkUploadCSV);
 
 export default router;

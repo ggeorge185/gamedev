@@ -47,6 +47,87 @@ export const bulkUploadJSON = [
   }
 ];
 
+// BULK IMPORT FUNCTION (CSV)
+export const bulkUploadCSV = async (req, res) => {
+  try {
+    const { words } = req.body;
+    const authorId = req.id;
+
+    if (!Array.isArray(words) || words.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "No valid words data provided" 
+      });
+    }
+
+    // Validate and prepare words for insertion
+    const wordsToInsert = [];
+    const validationErrors = [];
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const rowNum = i + 1;
+
+      // Validate required fields
+      if (!word.germanWordSingular?.trim()) {
+        validationErrors.push(`Row ${rowNum}: Missing German word singular`);
+        continue;
+      }
+      if (!word.article?.trim()) {
+        validationErrors.push(`Row ${rowNum}: Missing article`);
+        continue;
+      }
+      if (!word.topic?.trim()) {
+        validationErrors.push(`Row ${rowNum}: Missing topic`);
+        continue;
+      }
+
+      // Prepare word object
+      const wordToInsert = {
+        germanWordSingular: word.germanWordSingular.trim(),
+        germanWordPlural: word.germanWordPlural?.trim() || '',
+        article: word.article.trim(),
+        topic: word.topic.trim(),
+        languageLevel: word.languageLevel || 'A1',
+        englishTranslation: word.englishTranslation?.trim() || '',
+        englishDescription: word.englishDescription?.trim() || '',
+        jeopardyQuestion: word.jeopardyQuestion?.trim() || '',
+        clues: Array.isArray(word.clues) ? word.clues : [],
+        synonyms: Array.isArray(word.synonyms) ? word.synonyms : [],
+        furtherCharacteristics: Array.isArray(word.furtherCharacteristics) ? word.furtherCharacteristics : [],
+        author: authorId
+      };
+
+      wordsToInsert.push(wordToInsert);
+    }
+
+    // Return validation errors if any
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation errors found",
+        errors: validationErrors
+      });
+    }
+
+    // Insert words into database
+    const inserted = await Word.insertMany(wordsToInsert);
+
+    res.json({ 
+      success: true, 
+      count: inserted.length,
+      message: `Successfully uploaded ${inserted.length} words from CSV`
+    });
+
+  } catch (error) {
+    console.error('CSV bulk upload error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Internal server error during CSV upload'
+    });
+  }
+};
+
 // ================== Existing Functions ==================
 
 export const addWord = async (req, res) => {

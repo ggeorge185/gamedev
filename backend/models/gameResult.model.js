@@ -37,15 +37,15 @@ const gameResultSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
-    difficulty: {
-        type: String,
-        enum: ['easy', 'medium', 'hard'],
-        required: true
-    },
     languageLevel: {
         type: String,
         enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
         required: true
+    },
+    levelIndex: {
+        type: Number,
+        default: 0,
+        min: 0
     },
     topic: {
         type: String,
@@ -82,7 +82,8 @@ gameResultSchema.index({ player: 1, createdAt: -1 });
 gameResultSchema.index({ scenario: 1, createdAt: -1 });
 gameResultSchema.index({ game: 1, createdAt: -1 });
 gameResultSchema.index({ topic: 1, languageLevel: 1 });
-gameResultSchema.index({ gameType: 1, difficulty: 1 });
+gameResultSchema.index({ gameType: 1, languageLevel: 1 });
+gameResultSchema.index({ scenario: 1, levelIndex: 1 });
 
 // Virtual for accuracy percentage
 gameResultSchema.virtual('accuracy').get(function() {
