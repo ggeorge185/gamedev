@@ -85,11 +85,6 @@ const ScenarioGame = () => {
     }, 2000);
   };
 
-  const completeScenario = () => {
-    // Demo completion for scenarios without games
-    handleGameComplete(85);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 flex items-center justify-center">
@@ -189,14 +184,6 @@ const ScenarioGame = () => {
           >
             <ArrowLeft className="w-4 h-4" />
             Go Back
-          </Button>
-          
-          <Button
-            onClick={completeScenario}
-            className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-          >
-            <Trophy className="w-4 h-4" />
-            Mark as Complete (Demo)
           </Button>
         </div>
       </div>

@@ -1,7 +1,6 @@
-import { useEffect } from 'react'
+import MainLayout from './components/MainLayout'
 import Home from './components/Home'
 import Login from './components/Login'
-import MainLayout from './components/MainLayout'
 import Profile from './components/Profile'
 import Signup from './components/Signup'
 import SearchPage from './components/SearchPage'
@@ -11,7 +10,6 @@ import GameUserLogin from './components/GameUserLogin'
 import GameUserSignup from './components/GameUserSignup'
 import GameDashboard from './components/GameDashboard'
 import StoryMode from './components/StoryMode'
-import StoryModeDemo from './components/StoryModeDemo'
 import GameSelection from './components/GameSelection'
 import GameTypeManagement from './components/GameTypeManagement'
 import ScenarioConfiguration from './components/ScenarioConfiguration'
@@ -21,9 +19,7 @@ import ScenariosComponent from './components/scenarios-component'
 import ScenarioCollections from './components/scenario-collections'
 import Games from './components/Games'
 import Scenarios from './components/Scenarios'
-import DemoPage from './components/DemoPage'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { useSelector } from 'react-redux'
 import ProtectedRoutes from './components/ProtectedRoutes'
 import GameProtectedRoutes from './components/GameProtectedRoutes'
 
@@ -115,19 +111,9 @@ const browserRouter = createBrowserRouter([
     path: '/game/scenario/:scenarioId',
     element: <GameProtectedRoutes><ScenarioGame /></GameProtectedRoutes>
   },
-  {
-    path: '/demo/story-mode',
-    element: <StoryModeDemo />
-  },
-  {
-    path: '/demo',
-    element: <DemoPage />
-  },
 ])
 
 function App() {
-  const { user } = useSelector(store => store.auth);
-
   return (
     <>
       <RouterProvider router={browserRouter} />
