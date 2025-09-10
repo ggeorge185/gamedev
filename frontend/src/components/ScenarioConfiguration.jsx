@@ -13,7 +13,7 @@ const ScenarioConfiguration = () => {
   const [editingScenario, setEditingScenario] = useState(null);
   const [editingConfig, setEditingConfig] = useState(null);
 
-  const difficultyLevels = ['A1', 'A2', 'B1', 'B2'];
+  const difficultyLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   useEffect(() => {
     loadData();

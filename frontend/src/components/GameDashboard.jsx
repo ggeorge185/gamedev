@@ -167,8 +167,8 @@ const GameDashboard = () => {
                   <span className="font-medium">Available Now</span>
                 </div>
                 <p className="text-gray-600 text-sm">
-                  Experience 5 real-life scenarios: Accommodation, City Registration, 
-                  University, Banking, and Everyday Items.
+                  Experience 5 real-life scenarios: Finding Accommodation, City Registration, 
+                  University Related, Banking, and Medical Related.
                 </p>
               </div>
               <Button

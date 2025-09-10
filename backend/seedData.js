@@ -19,12 +19,12 @@ const seedData = async () => {
         // Create scenarios
         const scenarios = await Scenario.insertMany([
             {
-                name: 'Accommodation',
+                name: 'Finding Accommodation',
                 description: 'Find suitable housing in Germany',
                 order: 1,
                 mapPosition: { x: 20, y: 30 },
                 storyContext: 'Alex just arrived in Germany and needs to find a place to live. Help Alex navigate through housing options and rental processes.',
-                availableLevels: ['A1', 'A2', 'B1', 'B2'],
+                availableLevels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
                 isRequired: true
             },
             {
@@ -33,16 +33,16 @@ const seedData = async () => {
                 order: 2,
                 mapPosition: { x: 50, y: 20 },
                 storyContext: 'Alex needs to register with the local authorities (Anmeldung) - a crucial step for living in Germany.',
-                availableLevels: ['A1', 'A2', 'B1', 'B2'],
+                availableLevels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
                 isRequired: true
             },
             {
-                name: 'University related',
+                name: 'University Related',
                 description: 'Enroll in university and navigate academic life',
                 order: 3,
                 mapPosition: { x: 80, y: 40 },
                 storyContext: 'Alex wants to study in Germany and needs to understand the university system, enrollment processes, and academic vocabulary.',
-                availableLevels: ['A2', 'B1', 'B2'],
+                availableLevels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
                 isRequired: true
             },
             {
@@ -51,16 +51,16 @@ const seedData = async () => {
                 order: 4,
                 mapPosition: { x: 30, y: 70 },
                 storyContext: 'Alex needs to open a German bank account and learn about financial services and banking vocabulary.',
-                availableLevels: ['A1', 'A2', 'B1', 'B2'],
+                availableLevels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
                 isRequired: true
             },
             {
-                name: 'Medical Insurance',
+                name: 'Medical Related',
                 description: 'Get health insurance and understand medical system',
                 order: 5,
                 mapPosition: { x: 70, y: 80 },
                 storyContext: 'Alex needs to get health insurance and learn about the German medical system and healthcare vocabulary.',
-                availableLevels: ['A1', 'A2', 'B1', 'B2'],
+                availableLevels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
                 isRequired: true
             }
         ]);
