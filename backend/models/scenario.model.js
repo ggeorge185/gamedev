@@ -4,7 +4,7 @@ const scenarioSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        enum: ['Accommodation', 'City Registration', 'University', 'Banking', 'Everyday Items']
+        enum: ['Accommodation', 'City Registration', 'University related', 'Banking', 'Medical Insurance']
     },
     description: {
         type: String,

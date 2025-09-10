@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 const corsOptions = {
-    origin: "https://gamedev-2jld.onrender.com",
+    origin: ["https://gamedev-2jld.onrender.com", "http://localhost:5173", "http://localhost:3000"],
     credentials: true
 }
 app.use(cors(corsOptions));
