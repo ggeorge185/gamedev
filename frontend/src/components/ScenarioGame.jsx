@@ -6,6 +6,7 @@ import { ArrowLeft, GamepadIcon, Trophy, Clock, Target } from 'lucide-react';
 import { updateGameUserProgress } from '@/redux/gameAuthSlice';
 import { toast } from 'sonner';
 import AccommodationGame from './accommodation_game.jsx';
+import AccommodationStoryIntro from './AccommodationStoryIntro.jsx';
 // Import new game components
 import AnagramGameContainer from './games/anagram_game_container.jsx';
 import MemoryGameContainer from './games/memory_game_container.jsx';
@@ -107,6 +108,17 @@ const ScenarioGame = () => {
   }
 
   const renderGameContent = () => {
+    // Special handling for Accommodation scenario - simplified flow with Alex's story
+    if (scenario.name === 'Accommodation' || scenario.name === 'Finding Accommodation') {
+      return (
+        <AccommodationStoryIntro
+          scenario={scenario}
+          difficulty={difficulty}
+          onGameComplete={handleGameComplete}
+        />
+      );
+    }
+
     // If we have a scenario configuration, use the assigned game type
     if (scenarioConfig && scenarioConfig.gameType) {
       const gameType = scenarioConfig.gameType;
@@ -133,16 +145,6 @@ const ScenarioGame = () => {
           />
         );
       }
-    }
-    
-    // Fallback: Check if this is the "Accommodation" scenario with hardcoded game
-    if (scenario.name === 'Accommodation') {
-      return (
-        <AccommodationGame
-          difficulty={difficulty}
-          onGameComplete={handleGameComplete}
-        />
-      );
     }
 
     // Placeholder for scenarios without configuration

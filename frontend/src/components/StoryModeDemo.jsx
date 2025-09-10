@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { ArrowLeft, MapPin, Star, Lock, CheckCircle } from 'lucide-react';
+import AccommodationStoryIntro from './AccommodationStoryIntro.jsx';
 
 // Mock data for demonstration
 const mockScenarios = [
@@ -66,6 +67,7 @@ const mockGameUser = {
 const StoryModeDemo = () => {
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState('A1');
+  const [showAccommodationStory, setShowAccommodationStory] = useState(false);
   const scenarios = mockScenarios;
   const gameUser = mockGameUser;
 
@@ -106,11 +108,51 @@ const StoryModeDemo = () => {
 
   const startScenario = () => {
     if (selectedScenario && selectedDifficulty && isScenarioUnlocked(selectedScenario)) {
-      alert(`Starting ${selectedScenario.name} at difficulty ${selectedDifficulty}`);
+      // Special handling for accommodation scenario - show new interface
+      if (selectedScenario.name === 'Finding Accommodation') {
+        setShowAccommodationStory(true);
+      } else {
+        alert(`Starting ${selectedScenario.name} at difficulty ${selectedDifficulty}`);
+      }
     } else if (selectedScenario && !isScenarioUnlocked(selectedScenario)) {
       alert('Complete the previous scenario first to unlock this one!');
     }
   };
+
+  // Mock completion handler for demo
+  const handleGameComplete = (score) => {
+    alert(`Game completed with score: ${score}! This would normally update your progress.`);
+    setShowAccommodationStory(false);
+    setSelectedScenario(null);
+  };
+
+  // If showing accommodation story, render the new component
+  if (showAccommodationStory && selectedScenario?.name === 'Finding Accommodation') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header with back button */}
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              onClick={() => setShowAccommodationStory(false)}
+              variant="outline"
+              size="sm"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Map
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900">Alex's German Adventure - Finding Accommodation</h1>
+          </div>
+
+          <AccommodationStoryIntro
+            scenario={selectedScenario}
+            difficulty={selectedDifficulty}
+            onGameComplete={handleGameComplete}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-4">
