@@ -4,7 +4,7 @@ const scenarioSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        enum: ['Accommodation', 'City Registration', 'University related', 'Banking', 'Medical Insurance']
+        enum: ['Finding Accommodation', 'City Registration', 'University Related', 'Banking', 'Medical Related']
     },
     description: {
         type: String,
@@ -34,7 +34,7 @@ const scenarioSchema = new mongoose.Schema({
     // Available difficulty levels
     availableLevels: [{
         type: String,
-        enum: ['A1', 'A2', 'B1', 'B2']
+        enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
     }],
     // Whether this scenario is required to complete story mode
     isRequired: {

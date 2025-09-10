@@ -14,7 +14,7 @@ const scenarioConfigSchema = new mongoose.Schema({
     difficultyLevel: {
         type: String,
         required: true,
-        enum: ['A1', 'A2', 'B1', 'B2']
+        enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
     },
     // Game-specific configuration for this scenario/difficulty combination
     gameConfig: {

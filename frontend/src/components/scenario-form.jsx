@@ -18,15 +18,14 @@ const ScenarioForm = ({ scenario = null, onSave, onCancel }) => {
   });
 
   const scenarioNameOptions = [
-    'Accommodation',
+    'Finding Accommodation',
     'City Registration', 
-    'University',
+    'University Related',
     'Banking',
-    'Everyday Items',
-    'Medical Insurance'
+    'Medical Related'
   ];
 
-  const levelOptions = ['A1', 'A2', 'B1', 'B2'];
+  const levelOptions = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;

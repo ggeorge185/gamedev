@@ -135,8 +135,8 @@ const ScenarioGame = () => {
       }
     }
     
-    // Fallback: Check if this is the "Accommodation" scenario with hardcoded game
-    if (scenario.name === 'Accommodation') {
+    // Fallback: Check if this is the "Finding Accommodation" scenario with hardcoded game
+    if (scenario.name === 'Finding Accommodation') {
       return (
         <AccommodationGame
           difficulty={difficulty}
