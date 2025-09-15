@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
-import { ArrowLeft, MapPin, Star, Lock, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Lock, CheckCircle } from 'lucide-react';
 import { setScenarios } from '@/redux/gameAuthSlice';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -86,31 +86,35 @@ const StoryMode = () => {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Germany Map</h2>
-              <div className="relative bg-gradient-to-b from-blue-100 to-green-100 rounded-lg h-96 overflow-hidden">
-                {/* Map Background */}
-                <div className="absolute inset-0 opacity-20">
-                  <svg className="w-full h-full" viewBox="0 0 100 100">
-                    {/* Simple Germany outline */}
-                    <path
-                      d="M20,20 L80,20 L85,30 L80,50 L75,80 L25,85 L15,70 L20,20 Z"
-                      fill="currentColor"
-                      className="text-gray-400"
-                    />
-                  </svg>
+              <div className="relative rounded-lg h-96 overflow-hidden">
+                {/* Map Background - using image.jpg */}
+                <div className="absolute inset-0">
+                  <img 
+                    src="/image.jpg" 
+                    alt="Map background" 
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </div>
 
-                {/* Scenario Markers */}
-                {scenarios.map((scenario) => {
-                  // Defensive: skip if no mapPosition or missing x/y
-                  if (
-                    !scenario.mapPosition ||
-                    typeof scenario.mapPosition.x !== "number" ||
-                    typeof scenario.mapPosition.y !== "number"
-                  ) {
-                    return null;
-                  }
+                {/* Scenario Markers following a path */}
+                {scenarios.map((scenario, index) => {
                   const isCompleted = isScenarioCompleted(scenario._id);
                   const completionCount = getScenarioCompletionCount(scenario._id);
+                  
+                  // Create a simple path for markers to follow
+                  // This creates a curved path across the map
+                  const pathPoints = [
+                    { x: 15, y: 80 }, // Start bottom left
+                    { x: 25, y: 60 }, 
+                    { x: 40, y: 45 },
+                    { x: 55, y: 35 },
+                    { x: 70, y: 25 },
+                    { x: 85, y: 20 }  // End top right
+                  ];
+                  
+                  // Get position based on index in scenarios array
+                  const pathIndex = index % pathPoints.length;
+                  const position = pathPoints[pathIndex];
                   
                   return (
                     <button
@@ -120,8 +124,8 @@ const StoryMode = () => {
                         selectedScenario?._id === scenario._id ? 'z-20' : 'z-10'
                       }`}
                       style={{
-                        left: `${scenario.mapPosition?.x ?? 50}%`,
-                        top: `${scenario.mapPosition?.y ?? 50}%`,
+                        left: `${position.x}%`,
+                        top: `${position.y}%`,
                       }}
                     >
                       <div className="relative">
@@ -156,24 +160,6 @@ const StoryMode = () => {
                     </button>
                   );
                 })}
-              </div>
-
-              {/* Map Legend */}
-              <div className="mt-4 flex items-center gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                  <span>Available</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                  <span>Completed</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs">
-                    <Star className="w-3 h-3 text-yellow-900" />
-                  </div>
-                  <span>Number shows completion count</span>
-                </div>
               </div>
             </div>
           </div>

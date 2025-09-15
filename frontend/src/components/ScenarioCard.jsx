@@ -9,8 +9,7 @@ import {
     Clock, 
     Play,
     Pause,
-    BookOpen,
-    Target
+    BookOpen
 } from 'lucide-react';
 import { 
     DropdownMenu, 
@@ -134,14 +133,6 @@ const ScenarioCard = ({ scenario, showActions = true, isDragging = false, dragHa
                                 </Badge>
                             ))}
                         </div>
-                    </div>
-                )}
-
-                {/* Map Position */}
-                {scenario.mapPosition && (
-                    <div className="text-xs text-gray-600 flex items-center gap-1">
-                        <Target className="w-3 h-3" />
-                        <span>Position: ({scenario.mapPosition.x}, {scenario.mapPosition.y})</span>
                     </div>
                 )}
             </CardContent>
